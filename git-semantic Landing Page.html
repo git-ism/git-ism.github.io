@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>git-semantic — GIT-ISM Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         oklch(0.10 0.012 245);
+  --bg2:        oklch(0.13 0.012 245);
+  --bg3:        oklch(0.16 0.012 245);
+  --border:     oklch(0.22 0.012 245);
+  --text:       oklch(0.92 0.008 245);
+  --muted:      oklch(0.54 0.010 245);
+  --blue:       oklch(0.70 0.17 222);
+  --blue-dim:   oklch(0.70 0.17 222 / 0.12);
+  --blue-border:oklch(0.70 0.17 222 / 0.35);
+  --blue-glow:  oklch(0.70 0.17 222 / 0.06);
+  --amber:      oklch(0.78 0.18 72);
+  --amber-dim:  oklch(0.78 0.18 72 / 0.12);
+  --red:        oklch(0.65 0.20 25);
+  --red-dim:    oklch(0.65 0.20 25 / 0.12);
+  --green:      oklch(0.76 0.18 148);
+  --violet:     oklch(0.62 0.22 292);
+  --violet-dim: oklch(0.62 0.22 292 / 0.12);
+  --mono:    'JetBrains Mono', monospace;
+  --sans:    'Plus Jakarta Sans', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── SUITE BAR ── */
+.suite-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 101;
+  height: 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: var(--violet-dim);
+  border-bottom: 1px solid oklch(0.62 0.22 292 / 0.25);
+}
+.suite-bar-left {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+}
+.suite-bar-logo {
+  color: var(--violet); font-weight: 600; text-decoration: none;
+  display: flex; align-items: center; gap: 6px; text-transform: uppercase;
+}
+.suite-bar-logo-mark {
+  width: 14px; height: 14px; border: 1px solid var(--violet);
+  display: grid; place-items: center;
+}
+.suite-bar-logo-mark::before {
+  content: ''; width: 4px; height: 4px;
+  background: var(--violet); border-radius: 50%;
+}
+.suite-bar-sep { color: var(--muted); }
+.suite-bar-tool {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+  color: var(--muted); text-decoration: none; text-transform: uppercase;
+  transition: color 0.18s;
+}
+.suite-bar-tool:hover { color: var(--text); }
+.suite-bar-tool.active { color: var(--blue); }
+.suite-bar-right { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 32px; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: oklch(0.10 0.012 245 / 0.93);
+  backdrop-filter: blur(12px);
+}
+.nav-logo {
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--blue); letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo span { color: var(--muted); }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: var(--muted); text-decoration: none; letter-spacing: 0.05em;
+  text-transform: uppercase; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--bg); background: var(--blue);
+  border: none; padding: 8px 20px; cursor: pointer;
+  letter-spacing: 0.05em; text-transform: uppercase; transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; padding-top: 88px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 80% 50%, var(--blue-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 64px 80px 80px;
+  border-right: 1px solid var(--border);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--blue-border); background: var(--blue-dim);
+  padding: 5px 12px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: var(--blue); letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 32px; width: fit-content;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--blue);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 800; line-height: 1.0;
+  letter-spacing: -0.04em; color: var(--text); margin-bottom: 24px;
+}
+.hero-title em { font-style: normal; color: var(--blue); }
+.hero-sub { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 440px; margin-bottom: 48px; }
+.hero-sub strong { color: var(--text); font-weight: 500; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 56px; }
+.btn-primary {
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  background: var(--blue); color: var(--bg);
+  border: none; padding: 14px 28px; cursor: pointer;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  transition: opacity 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); padding: 14px 28px; cursor: pointer;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  transition: all 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+.hero-stats { display: flex; gap: 40px; }
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-val { font-family: var(--display); font-size: 22px; font-weight: 800; color: var(--blue); letter-spacing: -0.03em; }
+.stat-label { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; font-family: var(--mono); }
+
+/* ── TERMINAL ── */
+.hero-right {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 60px 60px 48px; position: relative;
+}
+.terminal-wrap { width: 100%; max-width: 560px; }
+.terminal {
+  background: var(--bg2); border: 1px solid var(--border);
+  box-shadow: 0 40px 80px oklch(0 0 0 / 0.5), 0 0 0 1px oklch(0.70 0.17 222 / 0.08);
+}
+.terminal-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+.t-dot { width: 10px; height: 10px; border-radius: 50%; }
+.t-title { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 8px; letter-spacing: 0.04em; }
+.terminal-body { padding: 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.9; }
+.t-prompt { color: var(--blue); }
+.t-cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: var(--blue); vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── SECTIONS ── */
+section { padding: 100px 80px; }
+.section-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: var(--blue); letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+}
+.section-label::after { content: ''; flex: 1; max-width: 48px; height: 1px; background: var(--blue-border); }
+h2 {
+  font-family: var(--display);
+  font-size: clamp(28px, 3vw, 44px); font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 16px;
+}
+.section-sub { font-size: 17px; color: var(--muted); max-width: 540px; line-height: 1.7; margin-bottom: 64px; }
+
+/* ── PROBLEM / WASTE RATIO CHART ── */
+.problem { background: var(--bg); border-top: 1px solid var(--border); }
+.chart-container {
+  border: 1px solid var(--border); background: var(--bg2);
+  padding: 40px; margin-bottom: 48px;
+}
+.chart-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 32px;
+}
+.chart-title { font-family: var(--display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+.chart-legend { display: flex; gap: 24px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.chart-area { position: relative; height: 200px; }
+.zone-labels {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  padding: 0 0 0 12px; border-left: 1px solid var(--border);
+  width: 52px;
+}
+.waste-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-top: 32px; }
+.waste-metric { background: var(--bg2); padding: 24px 28px; }
+.waste-val {
+  font-family: var(--display); font-size: 32px; font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px;
+}
+.waste-metric-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ── HOW IT WORKS ── */
+.how { border-top: 1px solid var(--border); background: var(--bg2); }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); }
+.step { background: var(--bg2); padding: 40px 36px; position: relative; }
+.step-num { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 20px; }
+.step-icon {
+  width: 40px; height: 40px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--blue-border); color: var(--blue);
+  font-family: var(--mono); font-size: 18px;
+}
+.step h3 { font-family: var(--display); font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.02em; }
+.step p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.step code { font-family: var(--mono); font-size: 11px; color: var(--blue); background: var(--blue-dim); padding: 1px 5px; }
+.step-cmd { font-family: var(--mono); font-size: 12px; color: var(--blue); background: var(--bg); border: 1px solid var(--border); padding: 10px 14px; margin-top: 20px; }
+.step-cmd .prompt { color: var(--muted); }
+
+/* branch diagram */
+.branch-block {
+  margin-top: 64px; border: 1px solid var(--border); background: var(--bg);
+  padding: 40px; font-family: var(--mono); font-size: 13px; line-height: 2.2;
+}
+.b-label { font-size: 11px; color: var(--muted); margin-bottom: 20px; letter-spacing: 0.06em; }
+.b-main { color: var(--text); }
+.b-branch { color: var(--blue); }
+.b-file { color: var(--muted); }
+
+/* ── AGENT WORKFLOW ── */
+.workflow { border-top: 1px solid var(--border); }
+.workflow-table { width: 100%; border-collapse: collapse; margin-bottom: 48px; }
+.workflow-table thead tr { border-bottom: 1px solid var(--border); }
+.workflow-table th {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 12px 20px; text-align: left; font-weight: 500;
+}
+.workflow-table td { padding: 16px 20px; border-bottom: 1px solid oklch(0.22 0.012 245 / 0.6); font-size: 14px; }
+.workflow-table tr:last-child td { border-bottom: none; }
+.wf-step { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.wf-step.orient { color: var(--blue); }
+.wf-step.retrieve { color: var(--amber); }
+.wf-step.search { color: var(--muted); }
+.wf-cmd { font-family: var(--mono); font-size: 12px; color: var(--text); }
+.wf-when { font-size: 13px; color: var(--muted); }
+.wf-badge {
+  font-family: var(--mono); font-size: 10px; padding: 3px 9px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.wf-badge.always { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue-border); }
+.wf-badge.after { background: var(--amber-dim); color: var(--amber); border: 1px solid oklch(0.78 0.18 72 / 0.3); }
+.wf-badge.last { background: oklch(0.22 0.012 245); color: var(--muted); border: 1px solid var(--border); }
+
+/* mini terminal for workflow */
+.mini-term { background: var(--bg2); border: 1px solid var(--border); }
+.mini-term-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 14px; background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+.mini-term-body { padding: 18px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.9; }
+.mt-row { display: flex; gap: 8px; }
+
+/* ── FEATURES ── */
+.features { border-top: 1px solid var(--border); background: var(--bg2); }
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); }
+.feature-card { background: var(--bg2); padding: 36px; }
+.feature-icon { font-family: var(--mono); font-size: 20px; color: var(--blue); margin-bottom: 16px; }
+.feature-card h3 { font-family: var(--display); font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.feature-card code { font-family: var(--mono); font-size: 12px; color: var(--blue); background: var(--blue-dim); padding: 1px 5px; }
+
+/* ── LANGUAGES ── */
+.languages { border-top: 1px solid var(--border); }
+.lang-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+.lang-pill {
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  padding: 8px 18px; border: 1px solid var(--border);
+  color: var(--muted); letter-spacing: 0.04em; background: var(--bg2);
+  transition: all 0.18s;
+}
+.lang-pill:hover { border-color: var(--blue-border); color: var(--blue); background: var(--blue-dim); }
+
+/* ── DIFFERENTIATORS ── */
+.diff { border-top: 1px solid var(--border); background: var(--bg2); }
+.diff-table { width: 100%; border-collapse: collapse; }
+.diff-table thead tr { border-bottom: 2px solid var(--border); }
+.diff-table th {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 12px 24px; text-align: left; font-weight: 500;
+}
+.diff-table th.us { color: var(--blue); }
+.diff-table th.them { color: var(--muted); }
+.diff-table td {
+  padding: 16px 24px; border-bottom: 1px solid oklch(0.22 0.012 245 / 0.6);
+  font-size: 14px;
+}
+.diff-table tr:last-child td { border-bottom: none; }
+.diff-table td.us { color: var(--text); }
+.diff-table td.them { color: var(--muted); }
+.diff-check { color: var(--blue); font-family: var(--mono); font-size: 13px; }
+.diff-cross { color: var(--muted); font-family: var(--mono); font-size: 13px; }
+
+/* ── COMMANDS ── */
+.commands { border-top: 1px solid var(--border); }
+.cmd-grid { display: grid; grid-template-columns: 220px 1fr; gap: 1px; background: var(--border); }
+.cmd-list { background: var(--bg2); }
+.cmd-item {
+  padding: 18px 24px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background 0.15s;
+}
+.cmd-item:hover { background: var(--bg3); }
+.cmd-item.active { background: var(--bg3); border-left: 2px solid var(--blue); }
+.cmd-name { font-family: var(--mono); font-size: 13px; color: var(--blue); }
+.cmd-short { font-size: 12px; color: var(--muted); }
+.cmd-detail { background: var(--bg2); padding: 40px; }
+.cmd-usage {
+  font-family: var(--mono); font-size: 14px; background: var(--bg);
+  border: 1px solid var(--border); padding: 16px 20px; color: var(--blue);
+  margin-bottom: 24px; position: relative;
+}
+.cmd-usage::before { content: '$ '; color: var(--muted); }
+.cmd-desc { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+.cmd-flags { display: flex; flex-direction: column; gap: 8px; }
+.cmd-flag { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; }
+.flag-name { color: var(--amber); min-width: 200px; }
+.flag-desc { color: var(--muted); }
+
+/* ── INSTALL ── */
+.install { border-top: 1px solid var(--border); background: var(--bg2); }
+.install-block {
+  background: var(--bg); border: 1px solid var(--border); padding: 28px 36px;
+  font-family: var(--mono); font-size: 15px; position: relative; margin-bottom: 20px;
+}
+.install-block .prompt { color: var(--muted); margin-right: 8px; }
+.install-block .cmd { color: var(--blue); }
+.copy-btn {
+  position: absolute; top: 14px; right: 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+  background: var(--bg3); border: 1px solid var(--border); color: var(--muted);
+  padding: 5px 12px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+}
+.copy-btn:hover { color: var(--blue); border-color: var(--blue-border); }
+.install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+.qs-step {
+  display: flex; gap: 16px; align-items: flex-start;
+  border: 1px solid var(--border); padding: 20px; background: var(--bg); font-family: var(--mono);
+  margin-bottom: 10px;
+}
+.qs-num { font-size: 11px; color: var(--muted); min-width: 20px; letter-spacing: 0.06em; }
+.qs-cmd { font-size: 13px; color: var(--blue); margin-bottom: 4px; }
+.qs-desc { font-size: 11px; color: var(--muted); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border); padding: 48px 80px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-links { display: flex; gap: 32px; }
+.footer-links a { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+/* reveal */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (max-width: 900px) {
+  nav { padding: 0 24px; top: 28px; }
+  .suite-bar { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  .hero-left { padding: 60px 32px; }
+  section { padding: 64px 32px; }
+  .steps { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .cmd-grid { grid-template-columns: 1fr; }
+  .install-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 24px; text-align: center; padding: 40px 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SUITE BAR -->
+<div class="suite-bar">
+  <div class="suite-bar-left">
+    <a class="suite-bar-logo" href="GIT-ISM Homepage.html">
+      <div class="suite-bar-logo-mark"></div>GIT-ISM
+    </a>
+    <span class="suite-bar-sep">/</span>
+    <a class="suite-bar-tool active" href="#">git-semantic</a>
+    <span class="suite-bar-sep">·</span>
+    <a class="suite-bar-tool" href="Landing Page v2.html">git-cognitive</a>
+  </div>
+  <div class="suite-bar-right">v0.4.0 · Rust</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><span>⬡</span> git-semantic</div>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#how">How it works</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#commands">Commands</a>
+    <a href="#install">Install</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('install').scrollIntoView({block:'start'})">cargo install</button>
+</nav>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── Reveal on scroll ─────────────────────────────────
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    els.forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+}
+
+// ── Copy button ───────────────────────────────────────
+function CopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800); };
+  return <button className="copy-btn" onClick={copy}>{copied ? '✓ copied' : 'copy'}</button>;
+}
+
+// ── Animated terminal ─────────────────────────────────
+const PHASES = [
+  {
+    cmd: 'git-semantic enable claude',
+    output: [
+      { text: '✓ subagent installed → .claude/agents/git-semantic.md', color: 'var(--blue)' },
+    ],
+  },
+  {
+    cmd: 'git-semantic index',
+    output: [
+      { text: 'Full index: 156 tracked files', color: 'var(--muted)' },
+      { text: 'Building spatial map...', color: 'var(--muted)' },
+      { text: 'Done in 12.3s — 156 files, 2847 chunks, 0 skipped', color: 'var(--blue)' },
+    ],
+  },
+  {
+    cmd: 'git-semantic map "embedding dispatch"',
+    output: [
+      { text: '## src/embeddings — openai: EmbeddingRequest, call_api', color: 'var(--text)' },
+      { text: '  entry points: src/embed.rs, src/main.rs', color: 'var(--muted)' },
+      { text: '  src/embeddings/openai.rs:27-82', color: 'var(--blue)' },
+      { text: '  src/embeddings/config.rs:0-47', color: 'var(--blue)' },
+    ],
+  },
+  {
+    cmd: 'git-semantic usage',
+    output: [
+      { text: 'SESSION     TURNS  BASELINE  LATEST  WASTE   TOTAL', color: 'var(--muted)' },
+      { text: '──────────────────────────────────────────────────', color: 'var(--border)' },
+      { text: '7fba9e7f    16     20k       27k     1.4x    362k', color: 'var(--text)' },
+      { text: 'bbf48ebf    45     19k       48k     2.6x    1.7M  ← yellow', color: 'var(--amber)' },
+    ],
+  },
+];
+
+function Terminal() {
+  const [phase, setPhase] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [showOutput, setShowOutput] = useState(false);
+  const [showHistory, setShowHistory] = useState([]);
+
+  useEffect(() => {
+    const current = PHASES[phase];
+    if (charIdx < current.cmd.length) {
+      const t = setTimeout(() => setCharIdx(c => c + 1), 38);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setShowOutput(true), 300);
+    return () => clearTimeout(t);
+  }, [phase, charIdx]);
+
+  useEffect(() => {
+    if (!showOutput) return;
+    const t = setTimeout(() => {
+      setShowHistory(h => [...h, phase]);
+      const next = (phase + 1) % PHASES.length;
+      if (next === 0) {
+        setTimeout(() => {
+          setShowHistory([]);
+          setPhase(0); setCharIdx(0); setShowOutput(false);
+        }, 1200);
+      } else {
+        setPhase(next); setCharIdx(0); setShowOutput(false);
+      }
+    }, 2600);
+    return () => clearTimeout(t);
+  }, [showOutput]);
+
+  return (
+    <div className="terminal">
+      <div className="terminal-header">
+        <div className="t-dot" style={{background:'var(--red)'}}></div>
+        <div className="t-dot" style={{background:'var(--amber)'}}></div>
+        <div className="t-dot" style={{background:'var(--blue)'}}></div>
+        <span className="t-title">~/myproject — zsh</span>
+      </div>
+      <div className="terminal-body">
+        {showHistory.map(i => (
+          <div key={i} style={{marginBottom:12}}>
+            <div><span className="t-prompt">❯ </span><span style={{color:'var(--text)'}}>{PHASES[i].cmd}</span></div>
+            {PHASES[i].output.map((o, j) => <div key={j} style={{color: o.color}}>{o.text}</div>)}
+          </div>
+        ))}
+        <div>
+          <span className="t-prompt">❯ </span>
+          <span style={{color:'var(--text)'}}>{PHASES[phase].cmd.slice(0, charIdx)}</span>
+          {!showOutput && <span className="t-cursor"></span>}
+        </div>
+        {showOutput && PHASES[phase].output.map((o, i) => (
+          <div key={i} style={{color: o.color}}>{o.text}</div>
+        ))}
+        {showOutput && <div style={{marginTop:8}}><span className="t-prompt">❯ </span><span className="t-cursor"></span></div>}
+      </div>
+    </div>
+  );
+}
+
+// ── Waste Ratio Chart ─────────────────────────────────
+function WasteChart() {
+  const ref = useRef(null);
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setAnimated(true); obs.disconnect(); }
+    }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  // token costs per turn (in k tokens)
+  const withoutGS = [18, 19, 21, 25, 31, 38, 44, 49, 55, 61, 67, 74];
+  const withGS    = [19, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25];
+  const maxVal = 80;
+  const W = 560, H = 180, PAD = { l: 48, r: 60, t: 12, b: 32 };
+  const chartW = W - PAD.l - PAD.r;
+  const chartH = H - PAD.t - PAD.b;
+  const turns = withoutGS.length;
+  const xScale = i => PAD.l + (i / (turns - 1)) * chartW;
+  const yScale = v => PAD.t + chartH - (v / maxVal) * chartH;
+
+  const toPath = arr => arr.map((v, i) => `${i === 0 ? 'M' : 'L'}${xScale(i).toFixed(1)},${yScale(v).toFixed(1)}`).join(' ');
+  const toArea = arr => `${toPath(arr)} L${xScale(turns-1).toFixed(1)},${(PAD.t+chartH).toFixed(1)} L${xScale(0).toFixed(1)},${(PAD.t+chartH).toFixed(1)} Z`;
+
+  const y25 = yScale(18 * 2.5);
+  const y5  = yScale(18 * 5);
+
+  return (
+    <div className="chart-container reveal" ref={ref}>
+      <div className="chart-header">
+        <div>
+          <div className="chart-title">Token cost per turn — session degradation</div>
+          <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:6}}>
+            baseline = avg first 5 turns · waste ratio = latest ÷ baseline
+          </div>
+        </div>
+        <div className="chart-legend">
+          <div className="legend-item"><div className="legend-dot" style={{background:'var(--red)'}}></div>Without git-semantic</div>
+          <div className="legend-item"><div className="legend-dot" style={{background:'var(--blue)'}}></div>With git-semantic</div>
+        </div>
+      </div>
+      <div className="chart-area">
+        <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%', height:'100%', overflow:'visible'}}>
+          {/* zone fills */}
+          <rect x={PAD.l} y={y5} width={chartW} height={PAD.t+chartH - y5}
+            fill="oklch(0.65 0.20 25 / 0.06)" />
+          <rect x={PAD.l} y={y25} width={chartW} height={y5 - y25}
+            fill="oklch(0.78 0.18 72 / 0.06)" />
+          <rect x={PAD.l} y={PAD.t} width={chartW} height={y25 - PAD.t}
+            fill="oklch(0.76 0.18 148 / 0.04)" />
+
+          {/* zone lines */}
+          <line x1={PAD.l} y1={y25} x2={PAD.l+chartW} y2={y25}
+            stroke="var(--amber)" strokeWidth="1" strokeDasharray="4 4" opacity="0.5" />
+          <line x1={PAD.l} y1={y5} x2={PAD.l+chartW} y2={y5}
+            stroke="var(--red)" strokeWidth="1" strokeDasharray="4 4" opacity="0.5" />
+
+          {/* zone labels */}
+          <text x={PAD.l+chartW+8} y={y25+4} fontFamily="var(--mono)" fontSize="10" fill="var(--amber)" opacity="0.8">2.5×</text>
+          <text x={PAD.l+chartW+8} y={y5+4} fontFamily="var(--mono)" fontSize="10" fill="var(--red)" opacity="0.8">5×</text>
+
+          {/* grid lines */}
+          {[20, 40, 60, 80].map(v => (
+            <g key={v}>
+              <line x1={PAD.l} y1={yScale(v)} x2={PAD.l+chartW} y2={yScale(v)}
+                stroke="var(--border)" strokeWidth="1" />
+              <text x={PAD.l-8} y={yScale(v)+4} fontFamily="var(--mono)" fontSize="9"
+                fill="var(--muted)" textAnchor="end">{v}k</text>
+            </g>
+          ))}
+
+          {/* x axis labels */}
+          {[0,4,8,11].map(i => (
+            <text key={i} x={xScale(i)} y={PAD.t+chartH+20} fontFamily="var(--mono)"
+              fontSize="9" fill="var(--muted)" textAnchor="middle">t{i+1}</text>
+          ))}
+
+          {/* area fills */}
+          <path d={toArea(withoutGS)} fill="oklch(0.65 0.20 25 / 0.08)" />
+          <path d={toArea(withGS)} fill="oklch(0.70 0.17 222 / 0.08)" />
+
+          {/* lines */}
+          <path d={toPath(withoutGS)} fill="none" stroke="var(--red)" strokeWidth="2"
+            style={{
+              strokeDasharray: animated ? 'none' : '1000',
+              strokeDashoffset: animated ? '0' : '1000',
+              transition: 'stroke-dashoffset 1.5s ease',
+            }} />
+          <path d={toPath(withGS)} fill="none" stroke="var(--blue)" strokeWidth="2"
+            style={{
+              strokeDasharray: animated ? 'none' : '1000',
+              strokeDashoffset: animated ? '0' : '1000',
+              transition: 'stroke-dashoffset 1.8s ease 0.3s',
+            }} />
+
+          {/* endpoint dots */}
+          {animated && <>
+            <circle cx={xScale(turns-1)} cy={yScale(withoutGS[turns-1])} r="4" fill="var(--red)" />
+            <circle cx={xScale(turns-1)} cy={yScale(withGS[turns-1])} r="4" fill="var(--blue)" />
+            <text x={xScale(turns-1)+8} y={yScale(withoutGS[turns-1])+4} fontFamily="var(--mono)" fontSize="10" fill="var(--red)">3.7×</text>
+            <text x={xScale(turns-1)+8} y={yScale(withGS[turns-1])+4} fontFamily="var(--mono)" fontSize="10" fill="var(--blue)">1.3×</text>
+          </>}
+        </svg>
+      </div>
+      <div className="waste-metrics">
+        {[
+          { val: '1.0×', label: 'Healthy session', color: 'var(--blue)', sub: 'flat token growth' },
+          { val: '2.5×', label: 'Degrading', color: 'var(--amber)', sub: 'late turns cost 2.5× start' },
+          { val: '5×+', label: 'Session failing', color: 'var(--red)', sub: 'start fresh' },
+        ].map(m => (
+          <div key={m.label} className="waste-metric">
+            <div className="waste-val" style={{color: m.color}}>{m.val}</div>
+            <div className="waste-metric-label">{m.label}</div>
+            <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:4}}>{m.sub}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Commands explorer ──────────────────────────────────
+const CMDS = [
+  { name: 'index', short: 'Parse & embed codebase', usage: 'git-semantic index',
+    desc: 'Parses all tracked files with tree-sitter, generates embeddings per chunk, builds a spatial map of subsystems and call edges, and commits everything to the semantic orphan branch. Incremental — only changed files are re-embedded on subsequent runs.',
+    flags: [] },
+  { name: 'hydrate', short: 'Populate local search index', usage: 'git-semantic hydrate',
+    desc: 'Reads the semantic orphan branch and populates .git/semantic.db. Fetches from origin/semantic first; falls back to local. No re-embedding needed — teammates consume an index built by one person.',
+    flags: [] },
+  { name: 'map', short: 'Orient in the codebase', usage: 'git-semantic map [query]',
+    desc: 'Shows the spatial map of the codebase. Without a query, lists all subsystems with key functions and entry points. With a natural language query, returns only the most relevant subsystems.',
+    flags: [] },
+  { name: 'get', short: 'Retrieve a code chunk directly', usage: 'git-semantic get <file:start-end>',
+    desc: 'Retrieves a specific code chunk by exact file and line location. Also returns all indexed chunks overlapping the given range, merged. Use after map to read the exact code identified.',
+    flags: [] },
+  { name: 'grep', short: 'Semantic code search', usage: 'git-semantic grep [OPTIONS] <query>',
+    desc: 'Searches code semantically using natural language. Returns matching chunks with full source content — no file reading needed. Lower score = more similar (cosine distance).',
+    flags: [{ name: '-n, --max-count <N>', desc: 'Maximum results to return (default: 10)' }] },
+  { name: 'enable', short: 'Install agent integration', usage: 'git-semantic enable claude',
+    desc: 'Installs a Claude Code subagent at .claude/agents/git-semantic.md. The agent auto-invokes when Claude navigates code, or is callable explicitly with @git-semantic. Idempotent.',
+    flags: [] },
+  { name: 'usage', short: 'Monitor token waste ratio', usage: 'git-semantic usage [OPTIONS]',
+    desc: 'Shows token usage and waste ratio for all Claude Code sessions. BASELINE = avg first 5 turns. LATEST = avg last 3 turns. WASTE = LATEST ÷ BASELINE. In watch mode, refreshes automatically.',
+    flags: [
+      { name: '-s, --sessions <N>', desc: 'Number of sessions to show (default: 5)' },
+      { name: '-w, --watch [<SECS>]', desc: 'Watch mode, refresh every N seconds (default: 2)' },
+    ] },
+  { name: 'config', short: 'Per-repo configuration', usage: 'git-semantic config [KEY] [VALUE]',
+    desc: 'Gets and sets per-repository configuration stored in .git/config. Supports openai, onnx, and gemma embedding providers. Switchable per repository.',
+    flags: [
+      { name: '--list', desc: 'List all semantic configuration' },
+      { name: '--get', desc: 'Get value for a key' },
+      { name: '--unset', desc: 'Remove a configuration key' },
+    ] },
+];
+
+function CommandsExplorer() {
+  const [active, setActive] = useState(0);
+  const cmd = CMDS[active];
+  return (
+    <div className="cmd-grid">
+      <div className="cmd-list">
+        {CMDS.map((c, i) => (
+          <div key={c.name} className={`cmd-item ${active === i ? 'active' : ''}`} onClick={() => setActive(i)}>
+            <div className="cmd-name">{c.name}</div>
+            <div className="cmd-short">{c.short}</div>
+          </div>
+        ))}
+      </div>
+      <div className="cmd-detail">
+        <div className="cmd-usage">{cmd.usage}</div>
+        <div className="cmd-desc">{cmd.desc}</div>
+        {cmd.flags.length > 0 && (
+          <div className="cmd-flags">
+            {cmd.flags.map(f => (
+              <div key={f.name} className="cmd-flag">
+                <span className="flag-name">{f.name}</span>
+                <span className="flag-desc">{f.desc}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────
+function App() {
+  useReveal();
+  return (
+    <>
+      {/* HERO */}
+      <section className="hero" style={{padding:0}}>
+        <div className="hero-left">
+          <div className="hero-badge"><div className="badge-dot"></div>v0.4.0 · Rust · MIT / Apache-2.0</div>
+          <h1 className="hero-title">
+            Give your AI agent<br/><em>a map.</em>
+          </h1>
+          <p className="hero-sub">
+            AI coding agents degrade. Every session starts cold, accumulates context, and pays for orientation on every turn.{' '}
+            <strong>git-semantic eliminates that cost</strong> — semantic search, spatial navigation, all stored in your git repo.
+          </p>
+          <div className="hero-actions">
+            <button className="btn-primary" onClick={() => document.getElementById('install').scrollIntoView({block:'start'})}>
+              ↓ Install
+            </button>
+            <a className="btn-secondary" href="https://github.com/ccherrad/git-semantic" target="_blank" rel="noopener">
+              GitHub ↗
+            </a>
+          </div>
+          <div className="hero-stats">
+            <div className="stat"><span className="stat-val">32%</span><span className="stat-label">fewer tokens</span></div>
+            <div className="stat"><span className="stat-val">24%</span><span className="stat-label">fewer turns</span></div>
+            <div className="stat"><span className="stat-val">1.0×</span><span className="stat-label">target waste</span></div>
+          </div>
+        </div>
+        <div className="hero-right">
+          <div className="terminal-wrap"><Terminal /></div>
+        </div>
+      </section>
+
+      {/* PROBLEM */}
+      <section className="problem" id="problem">
+        <div className="section-label">The Problem</div>
+        <h2>AI agents degrade.<br/>The waste ratio measures it.</h2>
+        <p className="section-sub">
+          Without spatial orientation, agents re-explore the codebase every session. Token cost per turn climbs 3–5× by the end of a session — you're paying for history, not output.
+        </p>
+        <WasteChart />
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1px', background:'var(--border)'}} className="reveal">
+          <div style={{background:'var(--bg2)', padding:'40px', borderTop:'2px solid var(--red)'}}>
+            <div style={{fontFamily:'var(--mono)', fontSize:10, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--red)', background:'var(--red-dim)', padding:'3px 10px', display:'inline-block', marginBottom:20}}>WITHOUT git-semantic</div>
+            <h3 style={{fontFamily:'var(--display)', fontSize:20, fontWeight:700, letterSpacing:'-0.02em', marginBottom:12}}>Orientation is expensive</h3>
+            <p style={{fontSize:15, color:'var(--muted)', lineHeight:1.7}}>The agent reads files, runs grep searches, builds a mental model from scratch. By turn 10, it carries that entire exploration as context — and pays for it on every subsequent turn.</p>
+          </div>
+          <div style={{background:'var(--bg2)', padding:'40px', borderTop:'2px solid var(--blue)'}}>
+            <div style={{fontFamily:'var(--mono)', fontSize:10, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--blue)', background:'var(--blue-dim)', padding:'3px 10px', display:'inline-block', marginBottom:20}}>WITH git-semantic</div>
+            <h3 style={{fontFamily:'var(--display)', fontSize:20, fontWeight:700, letterSpacing:'-0.02em', marginBottom:12}}>Orient in one turn</h3>
+            <p style={{fontSize:15, color:'var(--muted)', lineHeight:1.7}}>One <code style={{fontFamily:'var(--mono)', fontSize:13, color:'var(--blue)', background:'var(--blue-dim)', padding:'1px 5px'}}>git-semantic map</code> call returns a prebuilt spatial model of the codebase. The agent knows where everything is before it starts — and doesn't need to rediscover it.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className="how" id="how">
+        <div className="section-label">How it works</div>
+        <h2>Index once.<br/>Share with everyone.</h2>
+        <p className="section-sub">Three commands. One orphan branch. The whole team benefits from a single indexing run.</p>
+        <div className="steps reveal">
+          <div className="step">
+            <div className="step-num">01 —</div>
+            <div className="step-icon">◈</div>
+            <h3>Index</h3>
+            <p>tree-sitter parses every tracked file. Embeddings are generated per AST chunk. A spatial map clusters files into subsystems and traces call edges.</p>
+            <div className="step-cmd"><span className="prompt">$ </span>git-semantic index</div>
+            <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:10, lineHeight:1.8}}>
+              <div>Done in 12.3s — 156 files, 2847 chunks</div>
+              <div style={{color:'var(--blue)'}}>→ committed to semantic orphan branch</div>
+            </div>
+          </div>
+          <div className="step">
+            <div className="step-num">02 —</div>
+            <div className="step-icon">⎇</div>
+            <h3>Share</h3>
+            <p>Push the <code>semantic</code> branch once. Teammates fetch and hydrate — no API key, no re-embedding. The index lives in git like any other branch.</p>
+            <div className="step-cmd"><span className="prompt">$ </span>git push origin semantic</div>
+            <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:10, lineHeight:1.8}}>
+              <div>Teammates run:</div>
+              <div style={{color:'var(--blue)'}}>git-semantic hydrate</div>
+            </div>
+          </div>
+          <div className="step">
+            <div className="step-num">03 —</div>
+            <div className="step-icon">⌖</div>
+            <h3>Retrieve</h3>
+            <p>Agents use the three-command workflow: <code>map</code> to orient, <code>get</code> to retrieve, <code>grep</code> as last resort. Token growth stays flat.</p>
+            <div className="step-cmd"><span className="prompt">$ </span>git-semantic hydrate</div>
+            <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:10, lineHeight:1.8}}>
+              <div>Hydrated 2847 chunks into .git/semantic.db</div>
+              <div style={{color:'var(--blue)'}}>Loaded map: 14 subsystems, 156 edges</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="branch-block reveal">
+          <div className="b-label">semantic orphan branch structure</div>
+          <div style={{fontFamily:'var(--mono)', fontSize:13, lineHeight:2.2}}>
+            <div><span className="b-branch">semantic</span> (orphan — no shared history with main)</div>
+            <div>&nbsp;├── <span className="b-branch">.semantic-map.json</span> <span style={{fontSize:11, color:'var(--muted)'}}>— subsystems, entry points, cross-file call edges</span></div>
+            <div>&nbsp;└── <span className="b-file">src/embed.rs</span> <span style={{fontSize:11, color:'var(--muted)'}}>→ [{"{"}"start_line":9,"end_line":17,"text":"...","embedding":[0.12,...]{"}"}, ...]</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="b-file">src/db.rs</span> <span style={{fontSize:11, color:'var(--muted)'}}>→ [{"{"}...{"}"}]</span></div>
+          </div>
+        </div>
+      </section>
+
+      {/* AGENT WORKFLOW */}
+      <section className="workflow" id="workflow">
+        <div className="section-label">Agent workflow</div>
+        <h2>Three commands.<br/>One discipline.</h2>
+        <p className="section-sub">
+          <code style={{fontFamily:'var(--mono)', fontSize:14, color:'var(--blue)', background:'var(--blue-dim)', padding:'2px 7px'}}>git-semantic enable claude</code>{' '}
+          installs a subagent that enforces this automatically.
+        </p>
+        <table className="workflow-table reveal">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Command</th>
+              <th>When</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span className="wf-step orient">Orient</span></td>
+              <td><span className="wf-cmd">git-semantic map "query"</span></td>
+              <td><span className="wf-when">Always first — spatial overview</span></td>
+              <td><span className="wf-badge always">Always</span></td>
+            </tr>
+            <tr>
+              <td><span className="wf-step retrieve">Retrieve</span></td>
+              <td><span className="wf-cmd">git-semantic get file:start-end</span></td>
+              <td><span className="wf-when">After map — direct chunk access, max 3 calls</span></td>
+              <td><span className="wf-badge after">After map</span></td>
+            </tr>
+            <tr>
+              <td><span className="wf-step search">Search</span></td>
+              <td><span className="wf-cmd">git-semantic grep "query"</span></td>
+              <td><span className="wf-when">Last resort — only if map was insufficient</span></td>
+              <td><span className="wf-badge last">Last resort</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'24px', marginTop:0}} className="reveal">
+          <div className="mini-term">
+            <div className="mini-term-bar">
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--red)'}}></div>
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--amber)'}}></div>
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--blue)'}}></div>
+              <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--muted)',marginLeft:8}}>map output</span>
+            </div>
+            <div className="mini-term-body">
+              <div><span style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic map "payment processing"</span></div>
+              <div style={{marginTop:4, color:'var(--text)'}}>## src/payments — stripe: PaymentIntent, charge</div>
+              <div style={{color:'var(--muted)'}}>&nbsp; entry points: src/api/checkout.rs, src/main.rs</div>
+              <div style={{color:'var(--blue)'}}>&nbsp; src/payments/stripe.rs:14-89</div>
+              <div style={{color:'var(--blue)'}}>&nbsp; src/payments/webhook.rs:0-55</div>
+            </div>
+          </div>
+          <div className="mini-term">
+            <div className="mini-term-bar">
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--red)'}}></div>
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--amber)'}}></div>
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--blue)'}}></div>
+              <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--muted)',marginLeft:8}}>usage output</span>
+            </div>
+            <div className="mini-term-body">
+              <div><span style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic usage</span></div>
+              <div style={{color:'var(--muted)', fontSize:11, marginTop:4}}>SESSION&nbsp;&nbsp;&nbsp; TURNS&nbsp; BASELINE&nbsp; LATEST&nbsp; WASTE&nbsp; TOTAL</div>
+              <div style={{color:'var(--muted)', fontSize:11}}>─────────────────────────────────────────</div>
+              <div style={{color:'var(--text)', fontSize:11}}>7fba9e7f&nbsp;&nbsp; 16&nbsp;&nbsp;&nbsp;&nbsp; 20k&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 27k&nbsp;&nbsp;&nbsp;&nbsp; 1.4x&nbsp;&nbsp; 362k</div>
+              <div style={{color:'var(--amber)', fontSize:11}}>bbf48ebf&nbsp;&nbsp; 45&nbsp;&nbsp;&nbsp;&nbsp; 19k&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 48k&nbsp;&nbsp;&nbsp;&nbsp; 2.6x&nbsp;&nbsp; 1.7M ▲</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="features" id="features">
+        <div className="section-label">Features</div>
+        <h2>Everything the agent needs.<br/>Nothing it doesn't.</h2>
+        <p className="section-sub">Built from scratch for AI-assisted development — not adapted from an IDE plugin.</p>
+        <div className="features-grid reveal">
+          {[
+            { icon:'⌖', title:'Spatial codebase map', body:'Groups files into labeled subsystems with key functions, entry points, and cross-file call edges. The agent orients in one turn instead of reading everything.' },
+            { icon:'◈', title:'AST-aware chunking', body:'tree-sitter splits code at function, struct, class, and impl block boundaries — not arbitrary line counts. Chunk boundaries match semantic units.' },
+            { icon:'⎇', title:'Shared embeddings via git', body:<>Index once, push <code>semantic</code> branch. Teammates hydrate locally — no API key, no re-embedding. Embeddings live in git like any other artifact.</> },
+            { icon:'△', title:'Waste ratio monitoring', body:<><code>git-semantic usage</code> tracks token cost per turn across sessions. Detects context bloat before it compounds. Watch mode refreshes live.</> },
+            { icon:'⬡', title:'Hybrid search (BM25 + semantic)', body:'Combines BM25 keyword ranking with vector similarity for higher-precision results. Leiden clustering groups related subsystems for spatial queries.' },
+            { icon:'◉', title:'Multi-provider embeddings', body:<>OpenAI API, local ONNX (<code>bge-small-en-v1.5</code>), and Gemma — switchable per repo. No API key required with the ONNX path.</> },
+            { icon:'✦', title:'Claude Code native', body:<><code>enable claude</code> installs a subagent that enforces the orient→retrieve→search discipline across sessions and subagents — not just a CLAUDE.md suggestion.</> },
+            { icon:'⊛', title:'GitHub Actions automation', body:'Ready-made workflow YAML re-indexes on every push to main and pushes the semantic branch automatically. CI keeps the index fresh.' },
+          ].map(f => (
+            <div key={f.title} className="feature-card">
+              <div className="feature-icon">{f.icon}</div>
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* LANGUAGES */}
+      <section className="languages" id="languages">
+        <div className="section-label">Supported languages</div>
+        <h2>8 tree-sitter grammars.</h2>
+        <p className="section-sub">All chunked at AST boundaries — function definitions, struct/class declarations, impl blocks.</p>
+        <div className="lang-pills reveal">
+          {['Rust', 'Python', 'JavaScript', 'TypeScript', 'Java', 'C', 'C++', 'Go'].map(l => (
+            <div key={l} className="lang-pill">{l}</div>
+          ))}
+        </div>
+      </section>
+
+      {/* DIFFERENTIATORS */}
+      <section className="diff" id="diff">
+        <div className="section-label">vs. alternatives</div>
+        <h2>Agent-first by design,<br/>not by retrofit.</h2>
+        <p className="section-sub">Most code search tools were built for humans. git-semantic was built for agents.</p>
+        <table className="diff-table reveal">
+          <thead>
+            <tr>
+              <th style={{width:'42%'}} className="us">git-semantic</th>
+              <th style={{width:'42%'}} className="them">Other tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ['Spatial map — subsystems + call graph', 'Keyword or embedding search only'],
+              ['Embeddings stored in git (shared)', 'Per-user indexes, not shareable'],
+              ['Agent-first: orient → retrieve → search', 'Retrofitted from IDE search tools'],
+              ['AST-aware chunk boundaries', 'Token-window or line-count chunking'],
+              ['Waste ratio monitoring built in', 'No session efficiency visibility'],
+              ['Dual local/API embedding providers', 'API-only or local-only'],
+              ['GitHub Actions native automation', 'Manual re-indexing workflow'],
+            ].map(([us, them], i) => (
+              <tr key={i}>
+                <td className="us"><span className="diff-check">✓ </span>{us}</td>
+                <td className="them"><span className="diff-cross">— </span>{them}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* COMMANDS */}
+      <section className="commands" id="commands" style={{background:'var(--bg2)', borderTop:'1px solid var(--border)'}}>
+        <div className="section-label">Commands</div>
+        <h2>Every command you need.</h2>
+        <p className="section-sub">A focused, precise surface. Nothing extraneous.</p>
+        <CommandsExplorer />
+      </section>
+
+      {/* INSTALL */}
+      <section className="install" id="install">
+        <div className="section-label">Install</div>
+        <h2>One command.</h2>
+        <p className="section-sub">Published on crates.io. Requires Rust 1.65+, Git 2.0+.</p>
+        <div className="install-block reveal">
+          <span className="prompt">$</span><span className="cmd">cargo install gitsem</span>
+          <CopyBtn text="cargo install gitsem" />
+        </div>
+        <p style={{fontFamily:'var(--mono)', fontSize:12, color:'var(--muted)', marginBottom:24}}>or from source:</p>
+        <div className="install-block reveal" style={{fontSize:13, lineHeight:2}}>
+          <div><span className="prompt">$</span> <span className="cmd">git clone https://github.com/ccherrad/git-semantic</span></div>
+          <div><span className="prompt">$</span> <span className="cmd">cd git-semantic &amp;&amp; cargo install --path .</span></div>
+          <CopyBtn text={"git clone https://github.com/ccherrad/git-semantic\ncd git-semantic && cargo install --path ."} />
+        </div>
+
+        <div className="install-grid">
+          <div>
+            <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Quickstart</h3>
+            {[
+              { n:'1.', cmd:'git-semantic enable claude', desc:'Install Claude Code subagent' },
+              { n:'2.', cmd:'git-semantic index', desc:'Parse, embed, build spatial map' },
+              { n:'3.', cmd:'git push origin semantic', desc:'Share embeddings with team' },
+              { n:'4.', cmd:'git-semantic map "task description"', desc:'Orient before every task' },
+              { n:'5.', cmd:'git-semantic usage', desc:'Monitor session waste ratio' },
+            ].map(s => (
+              <div key={s.n} className="qs-step">
+                <span className="qs-num">{s.n}</span>
+                <div>
+                  <div className="qs-cmd">{s.cmd}</div>
+                  <div className="qs-desc">{s.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Teammate setup</h3>
+            {[
+              { n:'1.', cmd:'git fetch origin semantic', desc:'Pull the shared index' },
+              { n:'2.', cmd:'git-semantic hydrate', desc:'Populate local .git/semantic.db' },
+              { n:'3.', cmd:'git-semantic map "query"', desc:'Ready to use — no API key needed' },
+            ].map(s => (
+              <div key={s.n} className="qs-step">
+                <span className="qs-num" style={{color:'var(--amber)'}}>{s.n}</span>
+                <div>
+                  <div className="qs-cmd">{s.cmd}</div>
+                  <div className="qs-desc">{s.desc}</div>
+                </div>
+              </div>
+            ))}
+            <div style={{marginTop:20, padding:'20px', border:'1px solid var(--border)', background:'var(--bg)', fontFamily:'var(--mono)', fontSize:12, lineHeight:1.9}}>
+              <div style={{color:'var(--muted)', marginBottom:8}}>embedding providers</div>
+              <div><span style={{color:'var(--blue)'}}>onnx</span> <span style={{color:'var(--muted)'}}>bge-small-en-v1.5 (default, local)</span></div>
+              <div><span style={{color:'var(--blue)'}}>openai</span> <span style={{color:'var(--muted)'}}>text-embedding-3-small (API key)</span></div>
+              <div><span style={{color:'var(--blue)'}}>gemma</span> <span style={{color:'var(--muted)'}}>768-dim, coming soon</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer>
+        <div style={{display:'flex', flexDirection:'column', gap:6}}>
+          <div style={{fontFamily:'var(--mono)', fontSize:14, color:'var(--blue)'}}>⬡ git-semantic</div>
+          <div style={{fontFamily:'var(--mono)', fontSize:10, color:'var(--muted)', letterSpacing:'0.06em'}}>
+            Part of <a href="GIT-ISM Homepage.html" style={{color:'var(--violet)', textDecoration:'none'}}>GIT-ISM</a>
+          </div>
+        </div>
+        <div className="footer-links">
+          <a href="GIT-ISM Homepage.html">GIT-ISM suite ↗</a>
+          <a href="https://github.com/ccherrad/git-semantic" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://crates.io/crates/gitsem" target="_blank" rel="noopener">crates.io</a>
+          <a href="Landing Page v2.html">git-cognitive →</a>
+        </div>
+        <div className="footer-copy">MIT OR Apache-2.0</div>
+      </footer>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="56" fill="#0b0c14"/>
+    <rect x="8" y="8" width="64" height="40" rx="1" fill="#111520" stroke="#1e2030" stroke-width="0.5"/>
+    <rect x="8" y="8" width="64" height="7" fill="#161b28"/>
+    <circle cx="14" cy="11.5" r="1.8" fill="#f85149"/>
+    <circle cx="20" cy="11.5" r="1.8" fill="#e3b341"/>
+    <circle cx="26" cy="11.5" r="1.8" fill="#58a6ff"/>
+    <text x="12" y="24" font-family="monospace" font-size="4" fill="#58a6ff">❯ git-semantic map "auth"</text>
+    <text x="12" y="31" font-family="monospace" font-size="3.5" fill="#c9d1d9">## src/auth — validate_token</text>
+    <text x="12" y="37" font-family="monospace" font-size="3.5" fill="#58a6ff">  src/auth/jwt.rs:14-82</text>
+    <text x="12" y="43" font-family="monospace" font-size="3.5" fill="#58a6ff">  src/middleware/guard.rs:0-44</text>
+  </svg>
+</template>
+</body>
+</html>
