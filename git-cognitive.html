@@ -5,7 +5,7 @@
   <title>git-cognitive — Cognitive debt detection for git repos</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #faf9f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: #faf9f5; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding-top: 36px; }
     #__bundler_loading { position: fixed; bottom: 20px; right: 20px; font: 13px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; color: #666; background: #fff; padding: 8px 14px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 10000; }
     #__bundler_thumbnail { position: fixed; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #faf9f5; z-index: 9999; }
     #__bundler_thumbnail svg { width: 100%; height: 100%; object-fit: contain; }
@@ -19,6 +19,29 @@
   </noscript>
 </head>
 <body>
+<style>
+.suite-bar{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:36px;background:#0d1117;border-bottom:1px solid #21262d;font-family:'JetBrains Mono',monospace;font-size:11px;position:fixed;top:0;left:0;right:0;z-index:99999;}
+.suite-bar-left{display:flex;align-items:center;gap:10px;}
+.suite-bar-logo{display:flex;align-items:center;gap:8px;color:#e6edf3;text-decoration:none;font-weight:600;letter-spacing:0.04em;}
+.suite-bar-logo-mark{width:14px;height:14px;border:1.5px solid #7c3aed;border-radius:3px;background:linear-gradient(135deg,#7c3aed22,#7c3aed44);}
+.suite-bar-sep{color:#484f58;}
+.suite-bar-tool{color:#8b949e;text-decoration:none;letter-spacing:0.04em;}
+.suite-bar-tool:hover{color:#e6edf3;}
+.suite-bar-tool.active{color:#3b82f6;}
+.suite-bar-right{font-family:'JetBrains Mono',monospace;font-size:10px;color:#484f58;letter-spacing:0.06em;}
+</style>
+<div class="suite-bar">
+  <div class="suite-bar-left">
+    <a class="suite-bar-logo" href="index.html">
+      <div class="suite-bar-logo-mark"></div>GIT-ISM
+    </a>
+    <span class="suite-bar-sep">/</span>
+    <a class="suite-bar-tool" href="git-semantic.html">git-semantic</a>
+    <span class="suite-bar-sep">·</span>
+    <a class="suite-bar-tool active" href="#">git-cognitive</a>
+  </div>
+  <div class="suite-bar-right">v0.1.0 · Rust</div>
+</div>
   <div id="__bundler_thumbnail">
   <svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="56" fill="#0d1117"></rect>
