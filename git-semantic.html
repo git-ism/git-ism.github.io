@@ -287,6 +287,7 @@ h2 {
 .workflow-table tr:last-child td { border-bottom: none; }
 .wf-step { font-family: var(--mono); font-size: 12px; font-weight: 600; }
 .wf-step.orient { color: var(--blue); }
+.wf-step.read { color: var(--green); }
 .wf-step.retrieve { color: var(--amber); }
 .wf-step.search { color: var(--muted); }
 .wf-cmd { font-family: var(--mono); font-size: 12px; color: var(--text); }
@@ -711,7 +712,7 @@ const CMDS = [
     desc: 'Parses all tracked files with tree-sitter, generates embeddings per chunk, builds a spatial map of subsystems and call edges, and commits everything to the semantic orphan branch. Incremental — only changed files are re-embedded on subsequent runs.',
     flags: [] },
   { name: 'hydrate', short: 'Populate local search index', usage: 'git-semantic hydrate',
-    desc: 'Reads the semantic orphan branch and populates .git/semantic.db. Fetches from origin/semantic first; falls back to local. No re-embedding needed — teammates consume an index built by one person.',
+    desc: 'Reads the semantic/v1 orphan branch and populates .git/semantic.db. Fetches from origin/semantic/v1 first; falls back to local. No re-embedding needed — teammates consume an index built by one person.',
     flags: [] },
   { name: 'map', short: 'Orient in the codebase', usage: 'git-semantic map [query]',
     desc: 'Shows the spatial map of the codebase. Without a query, lists all subsystems with key functions and entry points. With a natural language query, returns only the most relevant subsystems.',
@@ -781,7 +782,7 @@ function App() {
   return (
     <>
       {/* HERO */}
-      <section className="hero" style={{padding:0}}>
+      <section className="hero">
         <div className="hero-left">
           <div className="hero-badge"><div className="badge-dot"></div>v0.4.0 · Rust · MIT / Apache-2.0</div>
           <h1 className="hero-title">
@@ -854,7 +855,7 @@ function App() {
             <div className="step-icon">⎇</div>
             <h3>Share</h3>
             <p>Push the <code>semantic</code> branch once. Teammates fetch and hydrate — no API key, no re-embedding. The index lives in git like any other branch.</p>
-            <div className="step-cmd"><span className="prompt">$ </span>git push origin semantic</div>
+            <div className="step-cmd"><span className="prompt">$ </span>git push origin semantic/v1</div>
             <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:10, lineHeight:1.8}}>
               <div>Teammates run:</div>
               <div style={{color:'var(--blue)'}}>git-semantic hydrate</div>
@@ -874,12 +875,15 @@ function App() {
         </div>
 
         <div className="branch-block reveal">
-          <div className="b-label">semantic orphan branch structure</div>
+          <div className="b-label">semantic/v1 orphan branch structure</div>
           <div style={{fontFamily:'var(--mono)', fontSize:13, lineHeight:2.2}}>
-            <div><span className="b-branch">semantic</span> (orphan — no shared history with main)</div>
-            <div>&nbsp;├── <span className="b-branch">.semantic-map.json</span> <span style={{fontSize:11, color:'var(--muted)'}}>— subsystems, entry points, cross-file call edges</span></div>
-            <div>&nbsp;└── <span className="b-file">src/embed.rs</span> <span style={{fontSize:11, color:'var(--muted)'}}>→ [{"{"}"start_line":9,"end_line":17,"text":"...","embedding":[0.12,...]{"}"}, ...]</span></div>
-            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="b-file">src/db.rs</span> <span style={{fontSize:11, color:'var(--muted)'}}>→ [{"{"}...{"}"}]</span></div>
+            <div><span className="b-branch">semantic/v1</span> (orphan — no shared history with main)</div>
+            <div>&nbsp;├── <span className="b-branch">.semantic-map.json</span></div>
+            <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;<span style={{fontSize:11, color:'var(--muted)'}}>{"{"}"version":1,"subsystems":[{"{"}"name":"...","description":"...","files":[...],"edges":[...]{"}"}]{"}"}</span></div>
+            <div>&nbsp;├── <span className="b-file">src/embed.rs</span></div>
+            <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;<span style={{fontSize:11, color:'var(--muted)'}}>{"[{"}"start_line":9,"end_line":17,"text":"pub fn create_provider(...) ...","embedding":[-0.10,0.04,...]{"}"}]"}</span></div>
+            <div>&nbsp;└── <span className="b-file">src/db.rs</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{fontSize:11, color:'var(--muted)'}}>{"[{"}"start_line":0,"end_line":6,"text":"use crate::models::CodeChunk; ...","embedding":[0.03,-0.06,...]{"}"}]"}</span></div>
           </div>
         </div>
       </section>
@@ -887,8 +891,8 @@ function App() {
       {/* AGENT WORKFLOW */}
       <section className="workflow" id="workflow">
         <div className="section-label">Agent workflow</div>
-        <h2>Three commands.<br/>One discipline.</h2>
-        <p className="section-sub">Orient once, read cheaply, retrieve exactly. Register as an MCP server and any client enforces this automatically.</p>
+        <h2>Orient once.<br/>Read cheaply. Retrieve exactly.</h2>
+        <p className="section-sub">Each step is a fallback, not a default. Most tasks end at outline. Register as an MCP server and any client follows this automatically.</p>
         <table className="workflow-table reveal">
           <thead>
             <tr>
@@ -902,14 +906,26 @@ function App() {
             <tr>
               <td><span className="wf-step orient">Orient</span></td>
               <td><span className="wf-cmd">git-semantic map "query"</span></td>
-              <td><span className="wf-when">Always first — spatial overview</span></td>
+              <td><span className="wf-when">Always first — find the relevant subsystem</span></td>
               <td><span className="wf-badge always">Always</span></td>
+            </tr>
+            <tr>
+              <td><span className="wf-step read">Read cheap</span></td>
+              <td><span className="wf-cmd">git-semantic get file --mode outline</span></td>
+              <td><span className="wf-when">Names + line ranges only — ~96% token reduction</span></td>
+              <td><span className="wf-badge after">After map</span></td>
+            </tr>
+            <tr>
+              <td><span className="wf-step read">Read cheap</span></td>
+              <td><span className="wf-cmd">git-semantic get file --mode signatures</span></td>
+              <td><span className="wf-when">Full declarations, no bodies — ~86% token reduction</span></td>
+              <td><span className="wf-badge after">If needed</span></td>
             </tr>
             <tr>
               <td><span className="wf-step retrieve">Retrieve</span></td>
               <td><span className="wf-cmd">git-semantic get file:start-end</span></td>
-              <td><span className="wf-when">After map — direct chunk access, max 3 calls</span></td>
-              <td><span className="wf-badge after">After map</span></td>
+              <td><span className="wf-when">Exact chunk by line range — max 3 calls</span></td>
+              <td><span className="wf-badge after">If needed</span></td>
             </tr>
             <tr>
               <td><span className="wf-step search">Search</span></td>
@@ -1051,7 +1067,7 @@ function App() {
             <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Quickstart</h3>
             {[
               { n:'1.', cmd:'git-semantic index', desc:'Parse, embed, build spatial map' },
-              { n:'2.', cmd:'git push origin semantic', desc:'Share embeddings with team' },
+              { n:'2.', cmd:'git push origin semantic/v1', desc:'Share embeddings with team' },
               { n:'3.', cmd:'git-semantic mcp', desc:'Register as MCP server in your client' },
               { n:'4.', cmd:'git-semantic map "task description"', desc:'Orient before every task' },
               { n:'5.', cmd:'git-semantic health', desc:'Inspect codebase cohesion & coupling' },
