@@ -174,13 +174,23 @@ nav {
 .cta-primary {
   font-family: var(--mono); font-size: 12px; font-weight: 600;
   letter-spacing: 0.04em; text-transform: uppercase;
-  padding: 13px 28px; border: none; cursor: pointer;
+  border: none; cursor: pointer;
+  display: inline-flex; align-items: stretch;
+  text-decoration: none; transition: opacity 0.18s; overflow: hidden;
+}
+.cta-primary:hover { opacity: 0.85; }
+.cta-primary-label {
   display: inline-flex; align-items: center; gap: 8px;
-  text-decoration: none; transition: opacity 0.18s;
+  padding: 13px 20px;
 }
 .cta-primary.semantic { background: var(--blue); color: var(--bg); }
 .cta-primary.cognitive { background: var(--green); color: var(--bg); }
-.cta-primary:hover { opacity: 0.85; }
+.cta-primary-gh {
+  display: inline-flex; align-items: center; padding: 13px 14px;
+  border-left: 1px solid oklch(0 0 0 / 0.2);
+  transition: background 0.18s;
+}
+.cta-primary-gh:hover { background: oklch(0 0 0 / 0.15); }
 .cta-secondary {
   font-family: var(--mono); font-size: 12px; font-weight: 500;
   letter-spacing: 0.04em; text-transform: uppercase;
@@ -539,12 +549,18 @@ function App() {
             <strong>git-cognitive</strong> tracks every AI-generated commit as measurable debt.
           </p>
           <div className="hero-ctas">
-            <a className="cta-primary semantic" href="git-semantic.html">
-              ⬡ git-semantic →
-            </a>
-            <a className="cta-primary cognitive" href="git-cognitive.html">
-              ◎ git-cognitive →
-            </a>
+            <div className="cta-primary semantic">
+              <a className="cta-primary-label" href="git-semantic.html" style={{color:'inherit',textDecoration:'none'}}>⬡ git-semantic →</a>
+              <a className="cta-primary-gh" href="https://github.com/ccherrad/git-semantic" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'none'}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+              </a>
+            </div>
+            <div className="cta-primary cognitive">
+              <a className="cta-primary-label" href="git-cognitive.html" style={{color:'inherit',textDecoration:'none'}}>◎ git-cognitive →</a>
+              <a className="cta-primary-gh" href="https://github.com/ccherrad/git-cognitive" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'none'}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+              </a>
+            </div>
             <a className="cta-secondary" href="https://github.com/ccherrad" target="_blank" rel="noopener">
               GitHub ↗
             </a>
@@ -591,7 +607,7 @@ function App() {
             <h2 className="tool-title" style={{fontFamily:'var(--display)'}}>Semantic grep<br/>for your codebase.</h2>
             <div className="tool-subtitle">cargo install gitsem · Rust · MIT / Apache-2.0</div>
             <p className="tool-desc">
-              Parses every tracked file with tree-sitter, generates vector embeddings per chunk, and stores them on a dedicated <strong>orphan git branch</strong> — so the whole team shares embeddings without re-indexing. Replace keyword grep with semantic search inside Claude Code.
+              Parses every tracked file with tree-sitter, generates vector embeddings per chunk, and stores them on a dedicated <strong>orphan git branch</strong> — so the whole team shares embeddings without re-indexing. Exposes <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>map</code>, <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>get</code>, <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>grep</code>, and <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>health</code> as MCP tools.
             </p>
 
             <div className="mini-term reveal">
@@ -602,12 +618,12 @@ function App() {
                 <span style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginLeft:8}}>~/project — zsh</span>
               </div>
               <div className="mini-term-body">
-                <div><span className="mt-prompt" style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic enable claude</span></div>
-                <div style={{color:'var(--muted)'}}>✓ hooks installed → .claude/hooks/</div>
-                <div style={{color:'var(--muted)'}}>✓ CLAUDE.md updated</div>
-                <div style={{marginTop:8}}><span className="mt-prompt" style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic grep "error propagation async"</span></div>
-                <div style={{color:'var(--blue)'}}>src/embed.rs:42 → EmbedError::Provider(..)</div>
-                <div style={{color:'var(--muted)', fontSize:11}}>1 chunk · 340 tokens (vs 4,200 grep baseline)</div>
+                <div><span className="mt-prompt" style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic map "error propagation"</span></div>
+                <div style={{color:'var(--text)'}}>## src/embed — EmbedError, Provider</div>
+                <div style={{color:'var(--muted)'}}>&nbsp; entry points: src/main.rs, src/embed.rs</div>
+                <div style={{color:'var(--blue)'}}>&nbsp; src/embed.rs:42-89</div>
+                <div style={{marginTop:8}}><span className="mt-prompt" style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic get src/embed.rs --mode outline</span></div>
+                <div style={{color:'var(--muted)', fontSize:11}}>L42-89 EmbedError · ~96% token reduction</div>
               </div>
             </div>
 
@@ -617,12 +633,12 @@ function App() {
                 <div className="tool-stat-label">fewer tokens</div>
               </div>
               <div>
-                <div className="tool-stat-val" style={{color:'var(--blue)'}}><Counter to={24} suffix="%" /></div>
-                <div className="tool-stat-label">fewer turns</div>
+                <div className="tool-stat-val" style={{color:'var(--blue)'}}><Counter to={96} suffix="%" /></div>
+                <div className="tool-stat-label">outline reduction</div>
               </div>
               <div>
-                <div className="tool-stat-val" style={{color:'var(--blue)'}}>2.5×</div>
-                <div className="tool-stat-label">waste ratio</div>
+                <div className="tool-stat-val" style={{color:'var(--blue)'}}>MCP</div>
+                <div className="tool-stat-label">native protocol</div>
               </div>
             </div>
 
@@ -703,7 +719,7 @@ function App() {
               {
                 icon: '⎇',
                 title: 'Git is the store',
-                body: <>Both tools write to dedicated orphan branches (<code>semantic</code>, <code>cognitive-debt/v1</code>). No external databases, no cloud sync, no SaaS dependency. Your repo is the source of truth.</>,
+                body: <>Both tools write to dedicated orphan branches (<code>semantic/v1</code>, <code>cognitive-debt/v1</code>). No external databases, no cloud sync, no SaaS dependency. Your repo is the source of truth.</>,
               },
               {
                 icon: '◈',
@@ -712,8 +728,8 @@ function App() {
               },
               {
                 icon: '⊛',
-                title: 'Claude Code native',
-                body: <>Both tools integrate via <code>enable claude</code> — installing hooks and injecting CLAUDE.md instructions that enforce behavior across subagents, not just sessions.</>,
+                title: 'MCP native',
+                body: <>git-semantic exposes its tools over the MCP protocol — register once in Claude Code, Cursor, or Windsurf and agents call <code>map</code>, <code>get</code>, <code>grep</code>, and <code>health</code> directly.</>,
               },
             ].map(p => (
               <div key={p.title} className="principle-item">
@@ -744,7 +760,7 @@ function App() {
               <div className="flow-node semantic" style={{flex:1}}>
                 <div className="flow-node-label">⬡ git-semantic</div>
                 <h4>Index + Search</h4>
-                <p>tree-sitter chunks → embeddings → <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--blue)'}}>semantic</code> branch. Agents search semantically.</p>
+                <p>tree-sitter chunks → embeddings → <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--blue)'}}>semantic/v1</code> branch. Agents orient and retrieve via MCP.</p>
               </div>
               <div className="flow-node cognitive" style={{flex:1}}>
                 <div className="flow-node-label">◎ git-cognitive</div>
