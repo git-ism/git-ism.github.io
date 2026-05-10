@@ -442,7 +442,7 @@ footer {
     <span class="suite-bar-sep">·</span>
     <a class="suite-bar-tool" href="git-cognitive.html">git-cognitive</a>
   </div>
-  <div class="suite-bar-right">v0.4.0 · Rust</div>
+  <div class="suite-bar-right">v0.4.1 · Rust</div>
 </div>
 
 <!-- NAV -->
@@ -709,13 +709,13 @@ function WasteChart() {
 // ── Commands explorer ──────────────────────────────────
 const CMDS = [
   { name: 'index', short: 'Parse & embed codebase', usage: 'git-semantic index',
-    desc: 'Parses all tracked files with tree-sitter, generates embeddings per chunk, builds a spatial map of subsystems and call edges, and commits everything to the semantic orphan branch. Incremental — only changed files are re-embedded on subsequent runs.',
+    desc: 'Parses all tracked files with tree-sitter, generates embeddings per chunk, builds a spatial map of clusters and call edges, and commits everything to the semantic orphan branch. Incremental — only changed files are re-embedded on subsequent runs.',
     flags: [] },
   { name: 'hydrate', short: 'Populate local search index', usage: 'git-semantic hydrate',
     desc: 'Reads the semantic/v1 orphan branch and populates .git/semantic.db. Fetches from origin/semantic/v1 first; falls back to local. No re-embedding needed — teammates consume an index built by one person.',
     flags: [] },
   { name: 'map', short: 'Orient in the codebase', usage: 'git-semantic map [query]',
-    desc: 'Shows the spatial map of the codebase. Without a query, lists all subsystems with key functions and entry points. With a natural language query, returns only the most relevant subsystems.',
+    desc: 'Shows the spatial map of the codebase. Without a query, lists all clusters with key functions and entry points. With a natural language query, returns only the most relevant clusters.',
     flags: [] },
   { name: 'get', short: 'Retrieve a file or chunk', usage: 'git-semantic get <file> [--mode outline|signatures|full]',
     desc: 'Retrieves a file or specific chunk by line range. Three modes: outline (names + ranges, ~96% token reduction), signatures (declarations only, ~86% reduction), full (default). Always shows callers via call edges.',
@@ -728,8 +728,8 @@ const CMDS = [
     desc: 'Hybrid search: BM25 (FTS5) + semantic embeddings + graph proximity, merged via Reciprocal Rank Fusion. Files connected via call edges to top results are boosted automatically. Higher score = more relevant.',
     flags: [{ name: '-n, --max-count <N>', desc: 'Maximum results to return (default: 10)' }] },
   { name: 'health', short: 'Codebase cohesion heatmap', usage: 'git-semantic health [--community <name>]',
-    desc: 'Shows a cohesion/coupling heatmap of all semantic communities. Use --community to drill into a specific one — shows files, top dependents, and top dependencies.',
-    flags: [{ name: '--community <name>', desc: 'Drill into a specific community (partial name match)' }] },
+    desc: 'Shows a cohesion/coupling heatmap of all clusters. Use --community to drill into a specific one — shows files, top dependents, and top dependencies.',
+    flags: [{ name: '--community <name>', desc: 'Drill into a specific cluster (partial name match)' }] },
   { name: 'benchmark', short: 'Measure token savings', usage: 'git-semantic benchmark [--json]',
     desc: 'Measures token savings across read modes for every indexed file. Replays navigation queries to compare grep vs map+get strategies. Output includes per-language savings and session cost simulation.',
     flags: [{ name: '--json', desc: 'Output results as JSON' }] },
@@ -737,9 +737,9 @@ const CMDS = [
     desc: 'Starts the MCP server (JSON-RPC over stdio). Exposes map, get, grep, and health as tools to any MCP-compatible client — Claude Code, Cursor, Codex, Windsurf, and others.',
     flags: [] },
   { name: 'config', short: 'Per-repo configuration', usage: 'git-semantic config [KEY] [VALUE]',
-    desc: 'Gets and sets per-repository configuration stored in .git/config. Supports openai, onnx, and gemma embedding providers. Switchable per repository.',
+    desc: 'Gets and sets per-repository configuration stored in .git/config under the topology.* namespace. Supports openai, onnx, and gemma embedding providers. Switchable per repository.',
     flags: [
-      { name: '--list', desc: 'List all semantic configuration' },
+      { name: '--list', desc: 'List all topology configuration' },
       { name: '--get', desc: 'Get value for a key' },
       { name: '--unset', desc: 'Remove a configuration key' },
     ] },
@@ -784,7 +784,7 @@ function App() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-left">
-          <div className="hero-badge"><div className="badge-dot"></div>v0.4.0 · Rust · MIT / Apache-2.0</div>
+          <div className="hero-badge"><div className="badge-dot"></div>v0.4.1 · Rust · MIT / Apache-2.0</div>
           <h1 className="hero-title">
             Give your AI agent<br/><em>a map.</em>
           </h1>
@@ -843,7 +843,7 @@ function App() {
             <div className="step-num">01 —</div>
             <div className="step-icon">◈</div>
             <h3>Index</h3>
-            <p>tree-sitter parses every tracked file. Embeddings are generated per AST chunk. A spatial map clusters files into subsystems and traces call edges.</p>
+            <p>tree-sitter parses every tracked file. Embeddings are generated per AST chunk. A spatial map groups files into clusters and traces call edges.</p>
             <div className="step-cmd"><span className="prompt">$ </span>git-semantic index</div>
             <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:10, lineHeight:1.8}}>
               <div>Done in 12.3s — 156 files, 2847 chunks</div>
@@ -869,7 +869,7 @@ function App() {
             <div className="step-cmd"><span className="prompt">$ </span>git-semantic hydrate</div>
             <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:10, lineHeight:1.8}}>
               <div>Hydrated 2847 chunks into .git/semantic.db</div>
-              <div style={{color:'var(--blue)'}}>Loaded map: 14 subsystems, 156 edges</div>
+              <div style={{color:'var(--blue)'}}>Loaded map: 14 clusters, 156 edges</div>
             </div>
           </div>
         </div>
@@ -879,7 +879,7 @@ function App() {
           <div style={{fontFamily:'var(--mono)', fontSize:13, lineHeight:2.2}}>
             <div><span className="b-branch">semantic/v1</span> (orphan — no shared history with main)</div>
             <div>&nbsp;├── <span className="b-branch">.semantic-map.json</span></div>
-            <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;<span style={{fontSize:11, color:'var(--muted)'}}>{"{"}"version":1,"subsystems":[{"{"}"name":"...","description":"...","files":[...],"edges":[...]{"}"}]{"}"}</span></div>
+            <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;<span style={{fontSize:11, color:'var(--muted)'}}>{"{"}"version":1,"clusters":[{"{"}"name":"...","description":"...","files":[...],"edges":[...]{"}"}]{"}"}</span></div>
             <div>&nbsp;├── <span className="b-file">src/embed.rs</span></div>
             <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;<span style={{fontSize:11, color:'var(--muted)'}}>{"[{"}"start_line":9,"end_line":17,"text":"pub fn create_provider(...) ...","embedding":[-0.10,0.04,...]{"}"}]"}</span></div>
             <div>&nbsp;└── <span className="b-file">src/db.rs</span></div>
@@ -906,7 +906,7 @@ function App() {
             <tr>
               <td><span className="wf-step orient">Orient</span></td>
               <td><span className="wf-cmd">git-semantic map "query"</span></td>
-              <td><span className="wf-when">Always first — find the relevant subsystem</span></td>
+              <td><span className="wf-when">Always first — find the relevant cluster</span></td>
               <td><span className="wf-badge always">Always</span></td>
             </tr>
             <tr>
@@ -977,10 +977,10 @@ function App() {
         <p className="section-sub">Built from scratch for AI-assisted development — not adapted from an IDE plugin.</p>
         <div className="features-grid reveal">
           {[
-            { icon:'⌖', title:'Spatial codebase map', body:'Groups files into labeled subsystems with key functions, entry points, and cross-file call edges. The agent orients in one turn instead of reading everything.' },
+            { icon:'⌖', title:'Spatial codebase map', body:'Groups files into labeled clusters with key functions, entry points, and cross-file call edges. The agent orients in one turn instead of reading everything.' },
             { icon:'◈', title:'AST-aware chunking', body:'tree-sitter splits code at function, struct, class, and impl block boundaries — not arbitrary line counts. Chunk boundaries match semantic units.' },
             { icon:'⎇', title:'Shared embeddings via git', body:<>Index once, push <code>semantic</code> branch. Teammates hydrate locally — no API key, no re-embedding. Embeddings live in git like any other artifact.</> },
-            { icon:'△', title:'Repo health heatmap', body:<><code>git-semantic health</code> shows a cohesion/coupling heatmap across all communities. Drill into any community to see its files, top dependents, and blast radius.</> },
+            { icon:'△', title:'Repo health heatmap', body:<><code>git-semantic health</code> shows a cohesion/coupling heatmap across all clusters. Drill into any cluster to see its files, top dependents, and blast radius.</> },
             { icon:'⬡', title:'Hybrid search (BM25 + semantic + graph)', body:'Three-signal search: BM25 keyword ranking, vector similarity, and graph proximity via Reciprocal Rank Fusion. Call-edge neighbors of top results are boosted automatically.' },
             { icon:'◉', title:'Multi-provider embeddings', body:<>OpenAI API, local Gemma (768-dim), and ONNX (<code>bge-small-en-v1.5</code>) — switchable per repo. No API key required with local providers.</> },
             { icon:'✦', title:'MCP server', body:'Exposes map, get, grep, and health as MCP tools. Register once in Claude Code, Cursor, or Windsurf — agents call the tools directly without any shell wrappers.' },
@@ -1021,7 +1021,7 @@ function App() {
           </thead>
           <tbody>
             {[
-              ['Spatial map — subsystems + call graph', 'Keyword or embedding search only'],
+              ['Spatial map — clusters + call graph', 'Keyword or embedding search only'],
               ['Embeddings stored in git (shared)', 'Per-user indexes, not shareable'],
               ['Agent-first: orient → retrieve → search', 'Retrofitted from IDE search tools'],
               ['AST-aware chunk boundaries', 'Token-window or line-count chunking'],
