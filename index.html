@@ -669,11 +669,11 @@ function App() {
                 <span style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginLeft:8}}>~/project — zsh</span>
               </div>
               <div className="mini-term-body">
-                <div><span className="mt-prompt" style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive audit --check-zombies</span></div>
+                <div><span className="mt-prompt" style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive index --check-zombies</span></div>
                 <div style={{color:'oklch(0.65 0.20 25)'}}>⚠ 3 zombie commits detected</div>
                 <div style={{color:'var(--muted)'}}>a3f8c2d · 47 days · 82% AI · unendorsed</div>
                 <div style={{marginTop:8}}><span className="mt-prompt" style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive endorse</span></div>
-                <div style={{color:'var(--green)'}}>✓ a3f8c2d endorsed · pushed to cognitive-debt/v1</div>
+                <div style={{color:'var(--green)'}}>✓ a3f8c2d endorsed · pushed to cognitive/v1</div>
               </div>
             </div>
 
@@ -716,7 +716,7 @@ function App() {
               {
                 icon: '⎇',
                 title: 'Git is the store',
-                body: <>Both tools write to dedicated orphan branches (<code>semantic/v1</code>, <code>cognitive-debt/v1</code>). No external databases, no cloud sync, no SaaS dependency. Your repo is the source of truth.</>,
+                body: <>Both tools write to dedicated orphan branches (<code>semantic/v1</code>, <code>cognitive/v1</code>). No external databases, no cloud sync, no SaaS dependency. Your repo is the source of truth.</>,
               },
               {
                 icon: '◈',
@@ -762,7 +762,7 @@ function App() {
               <div className="flow-node cognitive" style={{flex:1}}>
                 <div className="flow-node-label">◎ git-cognitive</div>
                 <h4>Audit + Score</h4>
-                <p>post-commit hook → AI attribution + friction score → <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--green)'}}>cognitive-debt/v1</code>.</p>
+                <p>post-commit hook → AI attribution + friction score → <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--green)'}}>cognitive/v1</code>.</p>
               </div>
             </div>
             <div className="flow-arrow">→</div>

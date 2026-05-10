@@ -387,7 +387,7 @@ footer {
     <span class="suite-bar-sep">·</span>
     <a class="suite-bar-tool active" href="#">git-cognitive</a>
   </div>
-  <div class="suite-bar-right">v0.1.0 · Rust</div>
+  <div class="suite-bar-right">v0.1.2 · Rust</div>
 </div>
 
 <!-- NAV -->
@@ -429,11 +429,11 @@ function CopyBtn({ text }) {
 // ── Animated terminal ─────────────────────────────────
 const PHASES = [
   {
-    cmd: 'git-cognitive audit HEAD',
+    cmd: 'git-cognitive index HEAD',
     output: [
       { text: 'Attributing lines...', color: 'var(--muted)' },
       { text: '✓ 82% AI-attributed · friction 0.74', color: 'var(--amber)' },
-      { text: '  class: tech_debt → pushed to cognitive-debt/v1', color: 'var(--green)' },
+      { text: '  class: tech_debt → pushed to cognitive/v1', color: 'var(--green)' },
     ],
   },
   {
@@ -448,11 +448,11 @@ const PHASES = [
     cmd: 'git-cognitive endorse a3f8c2d',
     output: [
       { text: '✓ a3f8c2d endorsed by ccherrad', color: 'var(--green)' },
-      { text: '  pushed to cognitive-debt/v1', color: 'var(--muted)' },
+      { text: '  pushed to cognitive/v1', color: 'var(--muted)' },
     ],
   },
   {
-    cmd: 'git-cognitive debt --check-zombies',
+    cmd: 'git-cognitive index --check-zombies',
     output: [
       { text: '⚠ 1 zombie commit detected', color: 'var(--red)' },
       { text: '  b9e1a04 · 47 days · 91% AI · unendorsed', color: 'var(--muted)' },
@@ -524,31 +524,34 @@ function Terminal() {
 
 // ── Commands explorer ──────────────────────────────────
 const CMDS = [
-  { name: 'audit', short: 'Attribute and score a commit', usage: 'git-cognitive audit [commit]',
-    desc: 'Slices the active Claude Code session to the window around the commit, attributes AI lines via trailers, keywords, and AST signatures, computes the friction score, classifies the commit, and pushes results to the cognitive-debt/v1 orphan branch.',
+  { name: 'index', short: 'Attribute and score commits', usage: 'git-cognitive index [OPTIONS]',
+    desc: 'Slices the active Claude Code session to the window around each commit, attributes AI lines via trailers, keywords, and AST signatures, computes the friction score, classifies the commit, and writes results to the cognitive/v1 orphan branch.',
     flags: [
+      { name: '--commit <SHA>|HEAD', desc: 'Index a specific commit' },
+      { name: '--since <SHA>', desc: 'Index all commits since this SHA' },
+      { name: '--all', desc: 'Backfill last 500 commits' },
       { name: '--check-zombies', desc: 'Flag unendorsed commits older than 30 days' },
     ] },
   { name: 'debt', short: 'Show cognitive debt in repo', usage: 'git-cognitive debt [OPTIONS]',
     desc: 'Lists all attributed commits with class, AI percentage, friction score, and endorsement status. Surfaces zombie commits automatically.',
     flags: [
-      { name: '--check-zombies', desc: 'Highlight zombie commits (unendorsed > 30 days)' },
-      { name: '--interactive', desc: 'Open interactive TUI mode' },
+      { name: '--interactive', desc: 'Open interactive TUI picker to endorse items' },
     ] },
-  { name: 'endorse', short: 'Mark a commit as reviewed', usage: 'git-cognitive endorse <commit>',
-    desc: 'Records that the commit has been understood and approved by a human. Endorsement is pushed to cognitive-debt/v1 and prevents the commit from becoming a zombie.',
+  { name: 'endorse', short: 'Mark a commit as reviewed', usage: 'git-cognitive endorse [<SHA>|HEAD]',
+    desc: 'Records that the commit has been understood and approved by a human. Endorsement is written to cognitive/v1 and auto-pushed. Omit SHA to open interactive picker.',
     flags: [] },
-  { name: 'show', short: 'Display commit analysis', usage: 'git-cognitive show <commit>',
-    desc: 'Shows detailed attribution breakdown, friction signal scores (complexity delta, doc gap, author churn), classification reasoning, and endorsement history for a specific commit.',
+  { name: 'show', short: 'Display commit analysis', usage: 'git-cognitive show <SHA>|HEAD',
+    desc: 'Shows the activity item details — classification, friction score, AI attribution percentage, zombie status, endorsement status — plus the full endorsement history for a specific commit.',
     flags: [] },
-  { name: 'enable', short: 'Install post-commit hook', usage: 'git-cognitive enable [agent]',
-    desc: 'Installs a post-commit hook that auto-audits every commit and pushes cognitive debt data. Idempotent — safe to run multiple times.',
+  { name: 'session', short: 'Show captured Claude session', usage: 'git-cognitive session <SHA>|HEAD',
+    desc: 'Displays the Claude Code conversation slice (prompts, responses, tool calls) that was captured for this commit\'s time window.',
     flags: [] },
-  { name: 'config', short: 'Per-repo configuration', usage: 'git-cognitive config [KEY] [VALUE]',
-    desc: 'Gets and sets per-repository configuration stored in .git/config. Controls zombie threshold, friction weights, and branch name.',
-    flags: [
-      { name: '--list', desc: 'List all cognitive configuration' },
-    ] },
+  { name: 'enable', short: 'Install post-commit hook', usage: 'git-cognitive enable claude',
+    desc: 'Writes .git/hooks/post-commit to auto-index every commit and push cognitive debt data to origin. Idempotent — safe to run multiple times.',
+    flags: [] },
+  { name: 'push / pull', short: 'Share debt with your team', usage: 'git-cognitive push\ngit-cognitive pull',
+    desc: 'Push or pull the cognitive/v1 branch to/from origin. Endorsements and activity items are shared with the whole team.',
+    flags: [] },
 ];
 
 function CommandsExplorer() {
@@ -590,7 +593,7 @@ function App() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-left">
-          <div className="hero-badge"><div className="badge-dot"></div>v0.1.0 · Rust · MIT / Apache-2.0</div>
+          <div className="hero-badge"><div className="badge-dot"></div>v0.1.2 · Rust · MIT / Apache-2.0</div>
           <h1 className="hero-title">
             Track the <em>cognitive debt</em><br/>your AI agents leave behind.
           </h1>
@@ -629,7 +632,7 @@ function App() {
               <div className="step-icon">⊛</div>
               <h3>Slice the session</h3>
               <p>Slices the active Claude Code session to the window between this commit and the previous one.</p>
-              <div className="step-cmd"><span className="prompt">$ </span>git-cognitive audit HEAD</div>
+              <div className="step-cmd"><span className="prompt">$ </span>git-cognitive index HEAD</div>
             </div>
             <div className="step">
               <div className="step-num">02 —</div>
@@ -653,8 +656,8 @@ function App() {
               <div className="step-num">04 —</div>
               <div className="step-icon">⎇</div>
               <h3>Write to git</h3>
-              <p>Results land on the <code>cognitive-debt/v1</code> orphan branch. Push once — the whole team sees the debt.</p>
-              <div className="step-cmd"><span className="prompt">$ </span>git push origin cognitive-debt/v1</div>
+              <p>Results land on the <code>cognitive/v1</code> orphan branch. Push once — the whole team sees the debt.</p>
+              <div className="step-cmd"><span className="prompt">$ </span>git-cognitive push</div>
             </div>
           </div>
         </div>
@@ -684,7 +687,7 @@ function App() {
             </div>
           </div>
           <div style={{background:'var(--bg2)', border:'1px solid var(--border)', padding:'32px 40px', fontFamily:'var(--mono)', fontSize:13, lineHeight:2.2}} className="reveal">
-            <div style={{color:'var(--muted)', marginBottom:8}}>cognitive-debt/v1 · a3f8c2d.json</div>
+            <div style={{color:'var(--muted)', marginBottom:8}}>cognitive/v1 · a3f8c2d.json</div>
             <div><span style={{color:'var(--muted)'}}>"class":</span> <span style={{color:'var(--amber)'}}>"tech_debt"</span><span style={{color:'var(--muted)'}}>,</span></div>
             <div><span style={{color:'var(--muted)'}}>"ai_pct":</span> <span style={{color:'var(--text)'}}>82</span><span style={{color:'var(--muted)'}}>,</span></div>
             <div><span style={{color:'var(--muted)'}}>"friction":</span> <span style={{color:'var(--amber)'}}>0.74</span><span style={{color:'var(--muted)'}}>,</span></div>
@@ -734,7 +737,7 @@ function App() {
                 <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--muted)',marginLeft:8}}>zombie scan</span>
               </div>
               <div className="mini-term-body">
-                <div><span style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive debt --check-zombies</span></div>
+                <div><span style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive index --check-zombies</span></div>
                 <div style={{color:'var(--red)', marginTop:4}}>⚠ 2 zombie commits detected</div>
                 <div style={{color:'var(--muted)'}}>b9e1a04 · 47 days · 91% AI · unendorsed</div>
                 <div style={{color:'var(--muted)'}}>c12f3a1 · 31 days · 78% AI · unendorsed</div>
@@ -751,7 +754,7 @@ function App() {
                 <div><span style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive show b9e1a04</span></div>
                 <div style={{color:'var(--muted)', marginTop:4}}>class: risk · friction: 0.87 · AI: 91%</div>
                 <div style={{marginTop:8}}><span style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive endorse b9e1a04</span></div>
-                <div style={{color:'var(--green)'}}>✓ b9e1a04 endorsed by ccherrad</div>
+                <div style={{color:'var(--green)'}}>✓ b9e1a04 endorsed · pushed to cognitive/v1</div>
               </div>
             </div>
           </div>
@@ -781,8 +784,8 @@ function App() {
                 <td><span className="wf-badge auto">Auto</span></td>
               </tr>
               <tr>
-                <td><span className="wf-step score">Audit</span></td>
-                <td><span className="wf-cmd">git-cognitive audit HEAD</span></td>
+                <td><span className="wf-step score">Index</span></td>
+                <td><span className="wf-cmd">git-cognitive index HEAD</span></td>
                 <td><span className="wf-when">Triggered by hook — or run manually</span></td>
                 <td><span className="wf-badge auto">Auto</span></td>
               </tr>
@@ -800,7 +803,7 @@ function App() {
               </tr>
               <tr>
                 <td><span className="wf-step watch">CI</span></td>
-                <td><span className="wf-cmd">git-cognitive debt --check-zombies</span></td>
+                <td><span className="wf-cmd">git-cognitive index --check-zombies</span></td>
                 <td><span className="wf-when">Gate PRs on unendorsed zombie commits</span></td>
                 <td><span className="wf-badge ci">CI gate</span></td>
               </tr>
@@ -819,12 +822,12 @@ function App() {
             {[
               { icon:'⊛', title:'Zero LLM calls', body:'All attribution and scoring is computed from git metadata, commit trailers, and AST analysis. No API key, no network, no cost per commit.' },
               { icon:'◈', title:'AST-aware friction scoring', body:<>Tree-sitter computes real complexity delta, doc gaps, and author churn. A weighted 0.0–1.0 score — not a heuristic estimate.</> },
-              { icon:'⎇', title:'Debt stored in git', body:<>All results are committed to the <code>cognitive-debt/v1</code> orphan branch. Push once — the whole team sees the same debt view.</> },
+              { icon:'⎇', title:'Debt stored in git', body:<>All results are committed to the <code>cognitive/v1</code> orphan branch. Push once — the whole team sees the same debt view.</> },
               { icon:'△', title:'Zombie detection', body:'Surfaces AI commits that went unendorsed for 30 days with no human follow-up. Prevents neglected technical debt from compounding silently.' },
               { icon:'⬡', title:'Six commit classes', body:'risk, tech_debt, new_feature, bug_fix, refactor, minor — each with its own endorsement policy. Minor and refactor auto-exclude when AI% is low.' },
               { icon:'◉', title:'Attribution priority order', body:'Checked in sequence: git trailer → keyword scan → AST pattern match. Explicit trailers always win; fallback to pattern matching when needed.' },
-              { icon:'✦', title:'Post-commit hook', body:<><code>git-cognitive enable</code> installs a post-commit hook that audits and pushes debt data automatically on every commit. Idempotent.</> },
-              { icon:'⊛', title:'CI gate support', body:<><code>--check-zombies</code> exits non-zero when zombie commits exist. Drop it into your PR pipeline to prevent merging unreviewed AI debt.</> },
+              { icon:'✦', title:'Post-commit hook', body:<><code>git-cognitive enable claude</code> installs a post-commit hook that indexes and pushes debt data automatically on every commit. Idempotent.</> },
+              { icon:'⊛', title:'CI gate support', body:<><code>index --check-zombies</code> exits non-zero when zombie commits exist. Drop it into your PR pipeline to prevent merging unreviewed AI debt.</> },
             ].map(f => (
               <div key={f.title} className="feature-card">
                 <div className="feature-icon">{f.icon}</div>
@@ -900,11 +903,11 @@ function App() {
             <div>
               <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Quickstart</h3>
               {[
-                { n:'1.', cmd:'git-cognitive enable', desc:'Install post-commit hook' },
-                { n:'2.', cmd:'git commit -m "feat: ..."', desc:'Work normally — audit fires automatically' },
+                { n:'1.', cmd:'git-cognitive enable claude', desc:'Install post-commit hook' },
+                { n:'2.', cmd:'git commit -m "feat: ..."', desc:'Work normally — index fires automatically' },
                 { n:'3.', cmd:'git-cognitive debt', desc:'Inspect attributed commits' },
                 { n:'4.', cmd:'git-cognitive endorse <hash>', desc:'Mark commits as reviewed' },
-                { n:'5.', cmd:'git push origin cognitive-debt/v1', desc:'Share debt view with team' },
+                { n:'5.', cmd:'git-cognitive push', desc:'Share debt view with team' },
               ].map(s => (
                 <div key={s.n} className="qs-step">
                   <span className="qs-num">{s.n}</span>
@@ -918,9 +921,9 @@ function App() {
             <div>
               <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Teammate setup</h3>
               {[
-                { n:'1.', cmd:'git fetch origin cognitive-debt/v1', desc:'Pull the shared debt branch' },
+                { n:'1.', cmd:'git-cognitive pull', desc:'Pull the shared debt branch' },
                 { n:'2.', cmd:'git-cognitive debt', desc:'View team-wide cognitive debt' },
-                { n:'3.', cmd:'git-cognitive enable', desc:'Start auditing your own commits' },
+                { n:'3.', cmd:'git-cognitive enable claude', desc:'Start indexing your own commits' },
               ].map(s => (
                 <div key={s.n} className="qs-step">
                   <span className="qs-num" style={{color:'var(--amber)'}}>{s.n}</span>
@@ -932,9 +935,10 @@ function App() {
               ))}
               <div style={{marginTop:20, padding:'20px', border:'1px solid var(--border)', background:'var(--bg)', fontFamily:'var(--mono)', fontSize:12, lineHeight:1.9}}>
                 <div style={{color:'var(--muted)', marginBottom:8}}>orphan branch</div>
-                <div><span style={{color:'var(--green)'}}>cognitive-debt/v1</span> <span style={{color:'var(--muted)'}}>— no shared history with main</span></div>
-                <div style={{marginTop:8, color:'var(--muted)'}}>.cognitive-index.json — all commit records</div>
-                <div style={{color:'var(--muted)'}}>{'{'}commit-hash{'}'}.json — per-commit attribution</div>
+                <div><span style={{color:'var(--green)'}}>cognitive/v1</span> <span style={{color:'var(--muted)'}}>— no shared history with main</span></div>
+                <div style={{marginTop:8, color:'var(--muted)'}}>{'{'}ab/cd/ef{'}'}/activity.json — classification + scores</div>
+                <div style={{color:'var(--muted)'}}>{'{'}ab/cd/ef{'}'}/endorsements.json — who endorsed + when</div>
+                <div style={{color:'var(--muted)'}}>{'{'}ab/cd/ef{'}'}/session.jsonl — captured Claude session</div>
               </div>
             </div>
           </div>
