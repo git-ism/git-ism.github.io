@@ -442,7 +442,7 @@ footer {
     <span class="suite-bar-sep">·</span>
     <a class="suite-bar-tool" href="git-cognitive.html">git-cognitive</a>
   </div>
-  <div class="suite-bar-right">v0.4.1 · Rust</div>
+  <div class="suite-bar-right">v0.5.0 · Rust</div>
 </div>
 
 <!-- NAV -->
@@ -728,13 +728,13 @@ const CMDS = [
     desc: 'Hybrid search: BM25 (FTS5) + semantic embeddings + graph proximity, merged via Reciprocal Rank Fusion. Files connected via call edges to top results are boosted automatically. Higher score = more relevant.',
     flags: [{ name: '-n, --max-count <N>', desc: 'Maximum results to return (default: 10)' }] },
   { name: 'health', short: 'Codebase cohesion heatmap', usage: 'git-semantic health [--community <name>]',
-    desc: 'Shows a cohesion/coupling heatmap of all clusters. Use --community to drill into a specific one — shows files, top dependents, and top dependencies.',
+    desc: 'Shows a cohesion/coupling heatmap of all clusters. Returns structured JSON (name, description, files, chunks, coupling_out, fan_in per cluster) — both as text and as MCP structuredContent. Use --community to drill into a specific one.',
     flags: [{ name: '--community <name>', desc: 'Drill into a specific cluster (partial name match)' }] },
   { name: 'benchmark', short: 'Measure token savings', usage: 'git-semantic benchmark [--json]',
     desc: 'Measures token savings across read modes for every indexed file. Replays navigation queries to compare grep vs map+get strategies. Output includes per-language savings and session cost simulation.',
     flags: [{ name: '--json', desc: 'Output results as JSON' }] },
   { name: 'mcp', short: 'Start MCP server', usage: 'git-semantic mcp',
-    desc: 'Starts the MCP server (JSON-RPC over stdio). Exposes map, get, grep, and health as tools to any MCP-compatible client — Claude Code, Cursor, Codex, Windsurf, and others.',
+    desc: 'Starts the MCP server (JSON-RPC over stdio). Exposes map, get, grep, and health as tools. The health tool returns structuredContent alongside text — MCP clients receive machine-readable cluster data without parsing. Compatible with Claude Code, Cursor, Codex, Windsurf, and others.',
     flags: [] },
   { name: 'config', short: 'Per-repo configuration', usage: 'git-semantic config [KEY] [VALUE]',
     desc: 'Gets and sets per-repository configuration stored in .git/config under the topology.* namespace. Supports openai, onnx, and gemma embedding providers. Switchable per repository.',
@@ -784,7 +784,7 @@ function App() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-left">
-          <div className="hero-badge"><div className="badge-dot"></div>v0.4.1 · Rust · MIT / Apache-2.0</div>
+          <div className="hero-badge"><div className="badge-dot"></div>v0.5.0 · Rust · MIT / Apache-2.0</div>
           <h1 className="hero-title">
             Give your AI agent<br/><em>a map.</em>
           </h1>

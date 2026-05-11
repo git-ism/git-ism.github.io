@@ -387,7 +387,7 @@ footer {
     <span class="suite-bar-sep">·</span>
     <a class="suite-bar-tool active" href="#">git-cognitive</a>
   </div>
-  <div class="suite-bar-right">v0.1.2 · Rust</div>
+  <div class="suite-bar-right">v0.2.0 · Rust</div>
 </div>
 
 <!-- NAV -->
@@ -552,6 +552,9 @@ const CMDS = [
   { name: 'push / pull', short: 'Share debt with your team', usage: 'git-cognitive push\ngit-cognitive pull',
     desc: 'Push or pull the cognitive/v1 branch to/from origin. Endorsements and activity items are shared with the whole team.',
     flags: [] },
+  { name: 'mcp', short: 'Start MCP server', usage: 'git-cognitive mcp',
+    desc: 'Starts the MCP server (JSON-RPC over stdio). Exposes debt, show, and endorse as structured tools. All tools return structuredContent alongside text — MCP clients receive machine-readable cognitive debt data without parsing. Compatible with Claude Code, Cursor, Windsurf, and others.',
+    flags: [] },
 ];
 
 function CommandsExplorer() {
@@ -593,7 +596,7 @@ function App() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-left">
-          <div className="hero-badge"><div className="badge-dot"></div>v0.1.2 · Rust · MIT / Apache-2.0</div>
+          <div className="hero-badge"><div className="badge-dot"></div>v0.2.0 · Rust · MIT / Apache-2.0</div>
           <h1 className="hero-title">
             Track the <em>cognitive debt</em><br/>your AI agents leave behind.
           </h1>
@@ -828,6 +831,7 @@ function App() {
               { icon:'◉', title:'Attribution priority order', body:'Checked in sequence: git trailer → keyword scan → AST pattern match. Explicit trailers always win; fallback to pattern matching when needed.' },
               { icon:'✦', title:'Post-commit hook', body:<><code>git-cognitive enable claude</code> installs a post-commit hook that indexes and pushes debt data automatically on every commit. Idempotent.</> },
               { icon:'⊛', title:'CI gate support', body:<><code>index --check-zombies</code> exits non-zero when zombie commits exist. Drop it into your PR pipeline to prevent merging unreviewed AI debt.</> },
+              { icon:'◉', title:'MCP server', body:<><code>git-cognitive mcp</code> exposes debt, show, and endorse as MCP tools with structuredContent responses. Register once in Claude Code, Cursor, or Windsurf — agents query and endorse commits directly.</> },
             ].map(f => (
               <div key={f.title} className="feature-card">
                 <div className="feature-icon">{f.icon}</div>
