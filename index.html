@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GIT-ISM — Intent Semantic Management</title>
+<title>git-cognitive — Cognitive debt detection for Git</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -16,31 +16,26 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       oklch(0.10 0.012 265);
-  --bg2:      oklch(0.13 0.012 265);
-  --bg3:      oklch(0.16 0.012 265);
-  --border:   oklch(0.23 0.012 265);
-  --text:     oklch(0.92 0.008 265);
-  --muted:    oklch(0.54 0.010 265);
-
-  /* Parent — Violet */
-  --violet:       oklch(0.62 0.22 292);
-  --violet-dim:   oklch(0.62 0.22 292 / 0.12);
-  --violet-glow:  oklch(0.62 0.22 292 / 0.06);
-
-  /* git-semantic — Sky Blue */
-  --blue:         oklch(0.70 0.17 222);
-  --blue-dim:     oklch(0.70 0.17 222 / 0.12);
-  --blue-glow:    oklch(0.70 0.17 222 / 0.07);
-
-  /* git-cognitive — Synthetic Green */
-  --green:        oklch(0.76 0.18 148);
-  --green-dim:    oklch(0.76 0.18 148 / 0.12);
-  --green-glow:   oklch(0.76 0.18 148 / 0.07);
-
-  --display: 'Syne', sans-serif;
-  --sans:    'Plus Jakarta Sans', sans-serif;
+  --bg:          oklch(0.10 0.012 245);
+  --bg2:         oklch(0.13 0.012 245);
+  --bg3:         oklch(0.16 0.012 245);
+  --border:      oklch(0.22 0.012 245);
+  --text:        oklch(0.92 0.008 245);
+  --muted:       oklch(0.54 0.010 245);
+  --green:       oklch(0.76 0.18 148);
+  --green-dim:   oklch(0.76 0.18 148 / 0.12);
+  --green-border:oklch(0.76 0.18 148 / 0.35);
+  --green-glow:  oklch(0.76 0.18 148 / 0.06);
+  --amber:       oklch(0.78 0.18 72);
+  --amber-dim:   oklch(0.78 0.18 72 / 0.12);
+  --red:         oklch(0.65 0.20 25);
+  --red-dim:     oklch(0.65 0.20 25 / 0.12);
+  --blue:        oklch(0.70 0.17 222);
+  --violet:      oklch(0.62 0.22 292);
+  --violet-dim:  oklch(0.62 0.22 292 / 0.12);
   --mono:    'JetBrains Mono', monospace;
+  --sans:    'Plus Jakarta Sans', sans-serif;
+  --display: 'Syne', sans-serif;
 }
 
 html { scroll-behavior: smooth; }
@@ -56,434 +51,352 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: 58px;
+/* ── SUITE BAR ── */
+.suite-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 101;
+  height: 32px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 48px;
+  background: var(--violet-dim);
+  border-bottom: 1px solid oklch(0.62 0.22 292 / 0.25);
+}
+.suite-bar-left {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+}
+.suite-bar-logo {
+  color: var(--violet); font-weight: 600; text-decoration: none;
+  display: flex; align-items: center; gap: 6px; text-transform: uppercase;
+}
+.suite-bar-logo-mark {
+  width: 14px; height: 14px; border: 1px solid var(--violet);
+  display: grid; place-items: center;
+}
+.suite-bar-logo-mark::before {
+  content: ''; width: 4px; height: 4px;
+  background: var(--violet); border-radius: 50%;
+}
+.suite-bar-sep { color: var(--muted); }
+.suite-bar-tool {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+  color: var(--muted); text-decoration: none; text-transform: uppercase;
+  transition: color 0.18s;
+}
+.suite-bar-tool:hover { color: var(--text); }
+.suite-bar-tool.active { color: var(--green); }
+.suite-bar-right { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 32px; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 56px;
   border-bottom: 1px solid var(--border);
-  background: oklch(0.10 0.012 265 / 0.88);
-  backdrop-filter: blur(16px);
+  background: oklch(0.10 0.012 245 / 0.93);
+  backdrop-filter: blur(12px);
 }
 .nav-logo {
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--display); font-size: 16px; font-weight: 700;
-  color: var(--text); letter-spacing: -0.02em; text-decoration: none;
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--green); letter-spacing: -0.02em; text-decoration: none;
 }
-.nav-logo-mark {
-  width: 28px; height: 28px;
-  border: 1.5px solid var(--violet);
-  display: grid; place-items: center;
-  position: relative;
-}
-.nav-logo-mark::before {
-  content: '';
-  width: 8px; height: 8px;
-  background: var(--violet);
-  border-radius: 50%;
-}
-.nav-logo-text { color: var(--text); }
-.nav-logo-text span { color: var(--violet); }
-
-.nav-center { display: flex; align-items: center; gap: 8px; }
-.nav-tool-btn {
-  font-family: var(--mono); font-size: 11px; font-weight: 500;
-  letter-spacing: 0.04em; padding: 5px 14px;
-  border: 1px solid var(--border); background: transparent;
-  cursor: pointer; transition: all 0.18s; text-decoration: none;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.nav-tool-btn.semantic { color: var(--blue); }
-.nav-tool-btn.semantic:hover { border-color: var(--blue); background: var(--blue-dim); }
-.nav-tool-btn.cognitive { color: var(--green); }
-.nav-tool-btn.cognitive:hover { border-color: var(--green); background: var(--green-dim); }
-.nav-divider { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
-
-.nav-right { display: flex; align-items: center; gap: 20px; }
-.nav-link {
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
   font-family: var(--mono); font-size: 11px; color: var(--muted);
   text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase;
   transition: color 0.18s;
 }
-.nav-link:hover { color: var(--text); }
-.nav-version {
-  font-family: var(--mono); font-size: 10px; color: var(--muted);
-  border: 1px solid var(--border); padding: 3px 9px; letter-spacing: 0.06em;
+.nav-links a:hover { color: var(--text); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-install {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; padding: 7px 18px;
+  background: var(--green); color: var(--bg);
+  border: none; cursor: pointer; text-decoration: none;
+  transition: opacity 0.18s; display: inline-block;
 }
+.nav-install:hover { opacity: 0.85; }
 
 /* ── HERO ── */
 .hero {
   min-height: 100vh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 120px 80px 80px;
-  position: relative; overflow: hidden; text-align: center;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; padding-top: 88px; position: relative; overflow: hidden;
 }
-.hero-grid-bg {
-  position: absolute; inset: 0; z-index: 0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 64px 64px;
-  opacity: 0.35;
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
-}
-.hero-glow {
-  position: absolute; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 60% 50% at 50% 40%,
-    oklch(0.62 0.22 292 / 0.07) 0%,
-    transparent 65%);
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 80% 50%, var(--green-glow) 0%, transparent 70%);
   pointer-events: none;
 }
-
-.hero-content { position: relative; z-index: 1; max-width: 860px; }
-
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 10px;
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 64px 80px 80px;
+  border-right: 1px solid var(--border);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--green-border);
+  background: var(--green-dim);
+  padding: 5px 12px;
   font-family: var(--mono); font-size: 11px; font-weight: 500;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--violet); margin-bottom: 36px;
+  color: var(--green); letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 32px; width: fit-content;
 }
-.hero-eyebrow::before,
-.hero-eyebrow::after {
-  content: ''; width: 32px; height: 1px; background: var(--violet);
-  opacity: 0.5;
-}
-
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 .hero-title {
   font-family: var(--display);
-  font-size: clamp(48px, 7vw, 90px);
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  color: var(--text);
-  margin-bottom: 32px;
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 700; line-height: 1.05;
+  letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 24px;
 }
-.hero-title em { font-style: normal; }
-.hero-title .line-semantic { color: var(--blue); }
-.hero-title .line-cognitive { color: var(--green); }
-
-.hero-sub {
-  font-size: 18px; color: var(--muted); line-height: 1.7;
-  max-width: 560px; margin: 0 auto 56px;
-  font-weight: 400;
-}
+.hero-title em { font-style: normal; color: var(--green); }
+.hero-sub { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 440px; margin-bottom: 48px; }
 .hero-sub strong { color: var(--text); font-weight: 500; }
-
-.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 80px; }
-.cta-primary {
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 56px; }
+.btn-primary {
   font-family: var(--mono); font-size: 12px; font-weight: 600;
   letter-spacing: 0.04em; text-transform: uppercase;
-  border: none; cursor: pointer;
-  display: inline-flex; align-items: stretch;
-  text-decoration: none; transition: opacity 0.18s; overflow: hidden;
-}
-.cta-primary:hover { opacity: 0.85; }
-.cta-primary-label {
+  padding: 13px 28px; background: var(--green); color: var(--bg);
+  border: none; cursor: pointer; text-decoration: none;
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 13px 20px;
+  transition: opacity 0.18s;
 }
-.cta-primary.semantic { background: var(--blue); color: var(--bg); }
-.cta-primary.cognitive { background: var(--green); color: var(--bg); }
-.cta-primary-gh {
-  display: inline-flex; align-items: center; padding: 13px 14px;
-  border-left: 1px solid oklch(0 0 0 / 0.2);
-  transition: background 0.18s;
-}
-.cta-primary-gh:hover { background: oklch(0 0 0 / 0.15); }
-.cta-secondary {
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
   font-family: var(--mono); font-size: 12px; font-weight: 500;
   letter-spacing: 0.04em; text-transform: uppercase;
   padding: 13px 28px; border: 1px solid var(--border); background: transparent;
-  cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 8px;
-  text-decoration: none; transition: all 0.18s;
+  color: var(--muted); cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.18s;
 }
-.cta-secondary:hover { color: var(--text); border-color: var(--muted); }
+.btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+.hero-stats { display: flex; gap: 40px; }
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-val { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--green); }
+.stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 
-/* hero tools preview strip */
-.hero-tools-strip {
-  display: flex; gap: 1px; background: var(--border);
-  border: 1px solid var(--border);
-  width: 100%; max-width: 840px; margin: 0 auto;
+.hero-right {
+  display: flex; align-items: center; justify-content: center;
+  padding: 80px 64px;
+  background: var(--bg2);
 }
-.hero-strip-col {
-  flex: 1; background: var(--bg2);
-  padding: 24px 28px;
-}
-.strip-label {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-}
-.strip-label.semantic { color: var(--blue); }
-.strip-label.cognitive { color: var(--green); }
-.strip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.strip-cmd { font-family: var(--mono); font-size: 12px; color: var(--text); }
-.strip-cmd .prompt { color: var(--muted); }
-.strip-output { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.8; }
-.strip-output .hi { color: var(--text); }
-.strip-output .blue { color: var(--blue); }
-.strip-output .green { color: var(--green); }
 
-/* ── TOOLS ── */
-.tools {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1px; background: var(--border);
+/* ── TERMINAL ── */
+.terminal-wrap { width: 100%; max-width: 520px; }
+.terminal {
+  background: var(--bg); border: 1px solid var(--border);
+  overflow: hidden;
+}
+.terminal-header {
+  display: flex; align-items: center; gap: 7px;
+  padding: 12px 16px; background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+.t-dot { width: 10px; height: 10px; border-radius: 50%; }
+.t-title { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 6px; }
+.terminal-body { padding: 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.9; }
+.t-prompt { color: var(--green); }
+.t-cursor {
+  display: inline-block; width: 7px; height: 13px;
+  background: var(--green); vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── SECTIONS ── */
+section {
+  padding: 100px 80px;
   border-top: 1px solid var(--border);
+  max-width: 100%;
 }
-.tool-card {
-  background: var(--bg);
-  padding: 72px 64px;
-  position: relative; overflow: hidden;
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-family: var(--mono); font-size: 11px; color: var(--green);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
 }
-.tool-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+.section-label::after { content: ''; width: 40px; height: 1px; background: var(--green-border); }
+.section-h2 {
+  font-family: var(--display); font-size: clamp(28px, 3.5vw, 48px);
+  font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;
+  margin-bottom: 20px;
 }
-.tool-card.semantic::before { background: var(--blue); }
-.tool-card.cognitive::before { background: var(--green); }
+.section-sub { font-size: 16px; color: var(--muted); max-width: 600px; line-height: 1.7; margin-bottom: 60px; }
 
-.tool-card-bg {
-  position: absolute; inset: 0; z-index: 0;
-  pointer-events: none;
-}
-.tool-card.semantic .tool-card-bg {
-  background: radial-gradient(ellipse 70% 50% at 100% 0%, var(--blue-glow) 0%, transparent 70%);
-}
-.tool-card.cognitive .tool-card-bg {
-  background: radial-gradient(ellipse 70% 50% at 0% 100%, var(--green-glow) 0%, transparent 70%);
-}
+/* ── HOW IT WORKS steps ── */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
+.step { background: var(--bg2); padding: 36px 32px; }
+.step-num { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 16px; }
+.step-icon { font-size: 22px; margin-bottom: 16px; color: var(--green); }
+.step h3 { font-family: var(--display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+.step p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.step code { font-family: var(--mono); font-size: 12px; color: var(--green); background: var(--green-dim); padding: 1px 5px; }
+.step-cmd { font-family: var(--mono); font-size: 12px; color: var(--green); background: var(--bg); border: 1px solid var(--border); padding: 10px 14px; margin-top: 20px; }
+.step-cmd .prompt { color: var(--muted); }
 
-.tool-card-inner { position: relative; z-index: 1; }
-
-.tool-badge {
-  display: inline-flex; align-items: center; gap: 7px;
+/* ── CLASSIFICATION badges ── */
+.classes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); }
+.class-card { background: var(--bg2); padding: 32px; }
+.class-badge {
+  display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--mono); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 5px 12px; margin-bottom: 32px;
+  letter-spacing: 0.08em; padding: 4px 10px; margin-bottom: 16px;
   border: 1px solid;
 }
-.tool-badge.semantic { color: var(--blue); border-color: oklch(0.70 0.17 222 / 0.4); background: var(--blue-dim); }
-.tool-badge.cognitive { color: var(--green); border-color: oklch(0.76 0.18 148 / 0.4); background: var(--green-dim); }
+.class-badge.risk { color: var(--red); border-color: oklch(0.65 0.20 25 / 0.4); background: var(--red-dim); }
+.class-badge.tech-debt { color: var(--amber); border-color: oklch(0.78 0.18 72 / 0.4); background: var(--amber-dim); }
+.class-badge.feature { color: var(--blue); border-color: oklch(0.70 0.17 222 / 0.35); background: oklch(0.70 0.17 222 / 0.12); }
+.class-badge.bug-fix { color: var(--green); border-color: var(--green-border); background: var(--green-dim); }
+.class-badge.refactor { color: var(--muted); border-color: var(--border); background: var(--bg3); }
+.class-badge.minor { color: var(--muted); border-color: var(--border); background: var(--bg3); }
+.class-card h3 { font-family: var(--display); font-size: 16px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.class-card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
-.tool-title {
-  font-family: var(--display); font-size: 36px; font-weight: 800;
-  letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px;
-}
-.tool-subtitle {
-  font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 24px;
-  letter-spacing: 0.04em;
-}
-.tool-desc {
-  font-size: 15px; color: var(--muted); line-height: 1.75;
-  max-width: 440px; margin-bottom: 40px;
-}
-.tool-desc strong { color: var(--text); font-weight: 500; }
+/* ── FRICTION signals ── */
+.signals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-bottom: 40px; }
+.signal-card { background: var(--bg2); padding: 40px 36px; }
+.signal-icon { font-size: 20px; color: var(--green); margin-bottom: 16px; }
+.signal-card h3 { font-family: var(--display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+.signal-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
 
-/* mini terminal */
-.mini-term {
+/* ── COMMANDS explorer ── */
+.cmd-grid { display: grid; grid-template-columns: 220px 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.cmd-list { background: var(--bg2); }
+.cmd-item { padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.14s; }
+.cmd-item:hover { background: var(--bg3); }
+.cmd-item.active { background: var(--bg); border-left: 2px solid var(--green); }
+.cmd-item.active .cmd-name { color: var(--green); }
+.cmd-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.cmd-short { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.cmd-detail { background: var(--bg); padding: 36px 40px; }
+.cmd-usage { font-family: var(--mono); font-size: 14px; color: var(--text); margin-bottom: 20px; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); }
+.cmd-usage::before { content: '$ '; color: var(--muted); }
+.cmd-desc { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 24px; }
+.cmd-flags { display: flex; flex-direction: column; gap: 10px; }
+.cmd-flag { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; }
+.flag-name { color: var(--green); min-width: 200px; }
+.flag-desc { color: var(--muted); }
+
+/* ── INSTALL ── */
+.install-block {
+  display: flex; align-items: center; justify-content: space-between;
   background: var(--bg2); border: 1px solid var(--border);
-  margin-bottom: 40px; overflow: hidden;
+  padding: 20px 28px; font-family: var(--mono); font-size: 15px;
+  margin-bottom: 16px;
 }
+.install-block .prompt { color: var(--muted); margin-right: 10px; }
+.install-block .cmd { color: var(--green); }
+.copy-btn {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 5px 12px; cursor: pointer; letter-spacing: 0.04em;
+  transition: all 0.18s;
+}
+.copy-btn:hover { color: var(--text); border-color: var(--muted); }
+.install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+.qs-step { display: flex; gap: 16px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.qs-num { font-family: var(--mono); font-size: 12px; color: var(--green); min-width: 24px; }
+.qs-cmd { font-family: var(--mono); font-size: 13px; color: var(--text); margin-bottom: 4px; }
+.qs-desc { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+/* ── mini terminal ── */
+.mini-term { background: var(--bg2); border: 1px solid var(--border); overflow: hidden; }
 .mini-term-bar {
   display: flex; align-items: center; gap: 6px;
   padding: 9px 14px; background: var(--bg3); border-bottom: 1px solid var(--border);
 }
-.mt-dot { width: 8px; height: 8px; border-radius: 50%; }
 .mini-term-body { padding: 18px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.9; }
-.mt-prompt { color: var(--muted); }
 
-.tool-stats { display: flex; gap: 36px; margin-bottom: 40px; }
-.tool-stat-val {
-  font-family: var(--display); font-size: 28px; font-weight: 800;
-  letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px;
-}
-.tool-stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.07em; text-transform: uppercase; }
+/* ── workflow table ── */
+.workflow-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+.workflow-table th { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+.workflow-table td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.wf-step { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.wf-step.commit { color: var(--green); }
+.wf-step.score { color: var(--amber); }
+.wf-step.endorse { color: var(--blue); }
+.wf-step.watch { color: var(--muted); }
+.wf-cmd { font-family: var(--mono); font-size: 12px; color: var(--text); }
+.wf-when { font-size: 13px; color: var(--muted); }
+.wf-badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; padding: 3px 10px; white-space: nowrap; }
+.wf-badge.auto { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
+.wf-badge.manual { background: oklch(0.70 0.17 222 / 0.12); color: var(--blue); border: 1px solid oklch(0.70 0.17 222 / 0.35); }
+.wf-badge.ci { background: var(--amber-dim); color: var(--amber); border: 1px solid oklch(0.78 0.18 72 / 0.3); }
 
-.tool-cta {
-  font-family: var(--mono); font-size: 12px; font-weight: 600;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  padding: 11px 24px; cursor: pointer; border: none;
-  display: inline-flex; align-items: center; gap: 8px;
-  text-decoration: none; transition: opacity 0.18s;
-}
-.tool-cta.semantic { background: var(--blue); color: var(--bg); }
-.tool-cta.cognitive { background: var(--green); color: var(--bg); }
-.tool-cta:hover { opacity: 0.82; }
-.tool-cta-ghost {
-  font-family: var(--mono); font-size: 12px; font-weight: 400;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  color: var(--muted); text-decoration: none;
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-left: 20px; transition: color 0.18s;
-}
-.tool-cta-ghost:hover { color: var(--text); }
+/* ── diff table ── */
+.diff-table { width: 100%; border-collapse: collapse; }
+.diff-table th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 20px; text-align: left; }
+.diff-table th.us { color: var(--green); background: var(--green-dim); border: 1px solid var(--green-border); }
+.diff-table th.them { color: var(--muted); background: var(--bg2); border: 1px solid var(--border); }
+.diff-table td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid var(--border); }
+.diff-table td.us { border-left: 1px solid var(--green-border); border-right: 1px solid var(--green-border); }
+.diff-table td.them { border-right: 1px solid var(--border); }
+.diff-check { color: var(--green); margin-right: 6px; }
+.diff-cross { color: var(--muted); margin-right: 6px; }
 
-/* ── PRINCIPLE ── */
-.principle {
-  padding: 100px 80px;
-  border-top: 1px solid var(--border);
-  background: var(--bg2);
-}
-.principle-inner {
-  max-width: 1100px; margin: 0 auto;
-}
-.section-label {
-  font-family: var(--mono); font-size: 11px; color: var(--violet);
-  letter-spacing: 0.12em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
-}
-.section-label::after {
-  content: ''; width: 40px; height: 1px; background: oklch(0.62 0.22 292 / 0.4);
-}
-.principle h2 {
-  font-family: var(--display); font-size: clamp(32px, 3.5vw, 52px);
-  font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;
-  margin-bottom: 60px;
-}
-.principle-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1px; background: var(--border);
-}
-.principle-item {
-  background: var(--bg2); padding: 40px 36px;
-}
-.principle-item-icon {
-  width: 36px; height: 36px; margin-bottom: 20px;
-  border: 1px solid var(--violet);
-  display: grid; place-items: center;
-  font-family: var(--mono); font-size: 16px; color: var(--violet);
-}
-.principle-item h3 {
-  font-family: var(--display); font-size: 18px; font-weight: 700;
-  letter-spacing: -0.02em; margin-bottom: 10px;
-}
-.principle-item p {
-  font-size: 14px; color: var(--muted); line-height: 1.75;
-}
-.principle-item p code {
-  font-family: var(--mono); font-size: 12px; color: var(--violet);
-  background: var(--violet-dim); padding: 1px 5px;
-}
+/* ── features grid ── */
+.features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+.feature-card { background: var(--bg2); padding: 40px 36px; }
+.feature-icon { font-size: 20px; color: var(--green); margin-bottom: 16px; }
+.feature-card h3 { font-family: var(--display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+.feature-card p { font-size: 14px; color: var(--muted); line-height: 1.75; }
+.feature-card code { font-family: var(--mono); font-size: 12px; color: var(--green); background: var(--green-dim); padding: 1px 5px; }
 
-/* ── DIAGRAM ── */
-.diagram {
-  padding: 100px 80px; border-top: 1px solid var(--border);
-}
-.diagram-inner { max-width: 1100px; margin: 0 auto; }
-.diagram h2 {
-  font-family: var(--display); font-size: clamp(28px, 3vw, 44px);
-  font-weight: 800; letter-spacing: -0.03em; margin-bottom: 60px;
-}
-.diagram-flow {
-  display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr;
-  gap: 0; align-items: start;
-}
-.flow-node {
-  border: 1px solid var(--border); background: var(--bg2); padding: 28px 24px;
-}
-.flow-node-label {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
-}
-.flow-node h4 {
-  font-family: var(--display); font-size: 18px; font-weight: 700;
-  letter-spacing: -0.02em; margin-bottom: 8px;
-}
-.flow-node p { font-size: 13px; color: var(--muted); line-height: 1.7; }
-.flow-arrow {
-  display: flex; align-items: flex-start; justify-content: center;
-  padding-top: 50px; color: var(--border); font-size: 18px;
-}
-.flow-node.semantic { border-color: oklch(0.70 0.17 222 / 0.4); }
-.flow-node.semantic .flow-node-label { color: var(--blue); }
-.flow-node.cognitive { border-color: oklch(0.76 0.18 148 / 0.4); }
-.flow-node.cognitive .flow-node-label { color: var(--green); }
-.flow-node.shared { border-color: oklch(0.62 0.22 292 / 0.4); }
-.flow-node.shared .flow-node-label { color: var(--violet); }
-
-/* ── STATS BAR ── */
-.stats-bar {
-  border-top: 1px solid var(--border);
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  background: var(--border); gap: 1px;
-}
-.stat-cell {
-  background: var(--bg); padding: 40px 48px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.stat-cell-val {
-  font-family: var(--display); font-size: 40px; font-weight: 800;
-  letter-spacing: -0.04em; line-height: 1;
-}
-.stat-cell-val.violet { color: var(--violet); }
-.stat-cell-val.blue { color: var(--blue); }
-.stat-cell-val.green { color: var(--green); }
-.stat-cell-label {
-  font-family: var(--mono); font-size: 11px; color: var(--muted);
-  letter-spacing: 0.07em; text-transform: uppercase;
-}
-
-/* ── FOOTER ── */
+/* ── footer ── */
 footer {
   border-top: 1px solid var(--border);
   padding: 48px 80px;
   display: flex; justify-content: space-between; align-items: center;
 }
-.footer-logo {
-  font-family: var(--display); font-size: 15px; font-weight: 700;
-  letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px;
-}
-.footer-logo-mark {
-  width: 20px; height: 20px;
-  border: 1.5px solid var(--violet);
-  display: grid; place-items: center;
-}
-.footer-logo-mark::before {
-  content: ''; width: 5px; height: 5px;
-  background: var(--violet); border-radius: 50%;
-}
 .footer-links { display: flex; gap: 28px; }
-.footer-links a {
-  font-family: var(--mono); font-size: 11px; color: var(--muted);
-  text-decoration: none; letter-spacing: 0.05em; transition: color 0.18s;
-}
+.footer-links a { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.05em; transition: color 0.18s; }
 .footer-links a:hover { color: var(--text); }
-.footer-copy { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
 /* reveal */
 .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
 .reveal.visible { opacity: 1; transform: none; }
 
 @media (max-width: 960px) {
-  nav { padding: 0 24px; }
-  .nav-center { display: none; }
-  .hero { padding: 100px 32px 60px; }
-  .hero-tools-strip { flex-direction: column; }
-  .tools { grid-template-columns: 1fr; }
-  .tool-card { padding: 48px 32px; }
-  .principle, .diagram { padding: 64px 32px; }
-  .principle-grid { grid-template-columns: 1fr; }
-  .diagram-flow { grid-template-columns: 1fr; }
-  .flow-arrow { display: none; }
-  .stats-bar { grid-template-columns: 1fr 1fr; }
+  nav { padding: 0 24px; top: 28px; }
+  .suite-bar { padding: 0 24px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  .hero-left { padding: 60px 32px; }
+  section { padding: 64px 32px; }
+  .steps { grid-template-columns: 1fr; }
+  .classes-grid { grid-template-columns: 1fr; }
+  .signals-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .install-grid { grid-template-columns: 1fr; }
+  .cmd-grid { grid-template-columns: 1fr; }
   footer { flex-direction: column; gap: 24px; text-align: center; padding: 40px 32px; }
 }
 </style>
 </head>
 <body>
 
+<!-- SUITE BAR -->
+<div class="suite-bar">
+  <div class="suite-bar-left">
+    <a class="suite-bar-logo" href="#">
+      <div class="suite-bar-logo-mark"></div>
+      git-cognitive
+    </a>
+  </div>
+  <div class="suite-bar-right">v0.3.9 · Rust</div>
+</div>
+
+<!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#">
-    <div class="nav-logo-mark"></div>
-    <span class="nav-logo-text">GIT<span>-ISM</span></span>
-  </a>
-  <div class="nav-center">
-    <a class="nav-tool-btn semantic" href="git-semantic.html">⬡ git-semantic</a>
-    <div class="nav-divider"></div>
-    <a class="nav-tool-btn cognitive" href="git-cognitive.html">◎ git-cognitive</a>
+  <a class="nav-logo" href="#">◎ git-cognitive</a>
+  <div class="nav-links">
+    <a href="#how" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'});return false;">How it works</a>
+    <a href="#workflow" onclick="document.getElementById('workflow').scrollIntoView({behavior:'smooth'});return false;">Workflow</a>
+    <a href="#commands" onclick="document.getElementById('commands').scrollIntoView({behavior:'smooth'});return false;">Commands</a>
+    <a href="#install" onclick="document.getElementById('install').scrollIntoView({behavior:'smooth'});return false;">Install</a>
   </div>
   <div class="nav-right">
-    <a class="nav-link" href="https://github.com/ccherrad" target="_blank" rel="noopener">GitHub</a>
-    <span class="nav-version">v0.2.0</span>
+    <a class="nav-install" href="#install" onclick="document.getElementById('install').scrollIntoView({behavior:'smooth'});return false;">↓ Install</a>
   </div>
 </nav>
 
@@ -503,307 +416,549 @@ function useReveal() {
   }, []);
 }
 
-// Animated counter
-function Counter({ to, suffix = '' }) {
-  const [val, setVal] = useState(0);
-  const ref = useRef(null);
-  const triggered = useRef(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !triggered.current) {
-        triggered.current = true;
-        let start = 0;
-        const step = () => {
-          start += Math.ceil(to / 30);
-          if (start >= to) { setVal(to); return; }
-          setVal(start);
-          requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }
-    }, { threshold: 0.5 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [to]);
-  return <span ref={ref}>{val}{suffix}</span>;
+function CopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800); };
+  return <button className="copy-btn" onClick={copy}>{copied ? '✓ copied' : 'copy'}</button>;
 }
 
-function App() {
-  useReveal();
+// ── Animated terminal ─────────────────────────────────
+const PHASES = [
+  {
+    cmd: 'git-cognitive index',
+    output: [
+      { text: 'Resolving covering set...', color: 'var(--muted)' },
+      { text: '✓ a3f8c2d  82% AI · friction 0.74', color: 'var(--amber)' },
+      { text: '  → cognitive/v1 · .git/cognitive.db', color: 'var(--green)' },
+    ],
+  },
+  {
+    cmd: 'git-cognitive blame src/index.rs',
+    output: [
+      { text: 'LINE  SHA       FRICTION  AI%  ', color: 'var(--muted)' },
+      { text: '  42  a3f8c2d   ███░ 0.74  82%', color: 'var(--amber)' },
+      { text: '  47  b9e1a04   ████ 0.87  91% ☠', color: 'var(--red)' },
+    ],
+  },
+  {
+    cmd: 'git-cognitive show HEAD',
+    output: [
+      { text: 'friction 0.74 · AI 82% · 142 lines', color: 'var(--amber)' },
+      { text: 'fatigue: yes · large_diff: yes', color: 'var(--muted)' },
+    ],
+  },
+  {
+    cmd: 'git-cognitive push',
+    output: [
+      { text: '✓ pushed cognitive/v1 to origin', color: 'var(--green)' },
+      { text: '  sessions preserved across merges', color: 'var(--muted)' },
+    ],
+  },
+];
+
+function Terminal() {
+  const [phase, setPhase] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [showOutput, setShowOutput] = useState(false);
+  const [showHistory, setShowHistory] = useState([]);
+
+  useEffect(() => {
+    const current = PHASES[phase];
+    if (charIdx < current.cmd.length) {
+      const t = setTimeout(() => setCharIdx(c => c + 1), 38);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setShowOutput(true), 300);
+    return () => clearTimeout(t);
+  }, [phase, charIdx]);
+
+  useEffect(() => {
+    if (!showOutput) return;
+    const t = setTimeout(() => {
+      setShowHistory(h => [...h, phase]);
+      const next = (phase + 1) % PHASES.length;
+      if (next === 0) {
+        setTimeout(() => {
+          setShowHistory([]);
+          setPhase(0); setCharIdx(0); setShowOutput(false);
+        }, 1200);
+      } else {
+        setPhase(next); setCharIdx(0); setShowOutput(false);
+      }
+    }, 2600);
+    return () => clearTimeout(t);
+  }, [showOutput]);
 
   return (
+    <div className="terminal">
+      <div className="terminal-header">
+        <div className="t-dot" style={{background:'var(--red)'}}></div>
+        <div className="t-dot" style={{background:'var(--amber)'}}></div>
+        <div className="t-dot" style={{background:'var(--green)'}}></div>
+        <span className="t-title">~/myproject — zsh</span>
+      </div>
+      <div className="terminal-body">
+        {showHistory.map(i => (
+          <div key={i} style={{marginBottom:12}}>
+            <div><span className="t-prompt">❯ </span><span style={{color:'var(--text)'}}>{PHASES[i].cmd}</span></div>
+            {PHASES[i].output.map((o, j) => <div key={j} style={{color: o.color}}>{o.text}</div>)}
+          </div>
+        ))}
+        <div>
+          <span className="t-prompt">❯ </span>
+          <span style={{color:'var(--text)'}}>{PHASES[phase].cmd.slice(0, charIdx)}</span>
+          {!showOutput && <span className="t-cursor"></span>}
+        </div>
+        {showOutput && PHASES[phase].output.map((o, i) => (
+          <div key={i} style={{color: o.color}}>{o.text}</div>
+        ))}
+        {showOutput && <div style={{marginTop:8}}><span className="t-prompt">❯ </span><span className="t-cursor"></span></div>}
+      </div>
+    </div>
+  );
+}
+
+// ── Commands explorer ──────────────────────────────────
+const CMDS = [
+  { name: 'enable', short: 'Install post-commit hook', usage: 'git-cognitive enable claude',
+    desc: 'Writes .git/hooks/post-commit to auto-index and push on every commit. Idempotent — safe to run multiple times.',
+    flags: [] },
+  { name: 'index', short: 'Attribute and score commits', usage: 'git-cognitive index [OPTIONS]',
+    desc: 'Finds the minimal covering set of commits for the current repo state (git ls-files → last-touching SHA per file → dedup → skip already-indexed), attributes AI lines, scores friction via tree-sitter AST, and writes a CommitAudit to SQLite (.git/cognitive.db) and the cognitive/v1 orphan branch. Idempotent.',
+    flags: [
+      { name: '--auto-sync', desc: 'Detect and sync merge commits before indexing' },
+      { name: '--output-json <path>', desc: 'Export audits as JSON (e.g. for cloud DB integration)' },
+    ] },
+  { name: 'blame', short: 'Cognitive overlay on git blame', usage: 'git-cognitive blame <file>',
+    desc: 'Interactive TUI showing git blame with cognitive audit data overlaid per line: friction score bar (green → yellow → red), AI attribution %, and zombie flag ☠. Controls: ↑↓/jk navigate, Enter drill into full audit, q quit.',
+    flags: [] },
+  { name: 'show', short: 'Full audit for a commit', usage: 'git-cognitive show <SHA>|HEAD',
+    desc: 'Full audit detail for a commit: friction score, AI attribution, lines changed, session duration, fatigue flag, zombie flag, and per-file hotspots (complexity + doc gap).',
+    flags: [] },
+  { name: 'session', short: 'Show captured Claude session', usage: 'git-cognitive session <SHA>|HEAD',
+    desc: 'Shows the Claude conversation slice (prompts, responses, tool calls) captured for this commit\'s window.',
+    flags: [] },
+  { name: 'sync', short: 'Sync merge commits', usage: 'git-cognitive sync',
+    desc: 'Detect and sync merge commits — three-way, squash, and rebase — from the working tree to the cognitive debt branch. Useful for merge commits created via the GitHub/Bitbucket UI.',
+    flags: [] },
+  { name: 'push / pull', short: 'Share debt with your team', usage: 'git-cognitive push\ngit-cognitive pull',
+    desc: 'Push or pull the cognitive/v1 branch to/from origin. Sessions are preserved across all merge strategies (three-way, squash, rebase).',
+    flags: [] },
+  { name: 'mcp', short: 'Start MCP server', usage: 'git-cognitive mcp',
+    desc: 'Starts a JSON-RPC MCP server over stdio. Exposes show (full audit for a SHA) and blame (per-line cognitive data for a file) as structured tools. Compatible with Claude Code, Cursor, Windsurf, and others.',
+    flags: [] },
+];
+
+function CommandsExplorer() {
+  const [active, setActive] = useState(0);
+  const cmd = CMDS[active];
+  return (
+    <div className="cmd-grid">
+      <div className="cmd-list">
+        {CMDS.map((c, i) => (
+          <div key={c.name} className={`cmd-item ${active === i ? 'active' : ''}`} onClick={() => setActive(i)}>
+            <div className="cmd-name">{c.name}</div>
+            <div className="cmd-short">{c.short}</div>
+          </div>
+        ))}
+      </div>
+      <div className="cmd-detail">
+        <div className="cmd-usage">{cmd.usage}</div>
+        <div className="cmd-desc">{cmd.desc}</div>
+        {cmd.flags.length > 0 && (
+          <div className="cmd-flags">
+            {cmd.flags.map(f => (
+              <div key={f.name} className="cmd-flag">
+                <span className="flag-name">{f.name}</span>
+                <span className="flag-desc">{f.desc}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────
+function App() {
+  useReveal();
+  return (
     <>
-      {/* ── HERO ── */}
+      {/* HERO */}
       <section className="hero">
-        <div className="hero-grid-bg"></div>
-        <div className="hero-glow"></div>
-        <div className="hero-content">
-          <div className="hero-eyebrow">Intent Semantic Management</div>
+        <div className="hero-left">
+          <div className="hero-badge"><div className="badge-dot"></div>v0.3.9 · Rust · MIT / Apache-2.0</div>
           <h1 className="hero-title">
-            <span className="line-semantic">Semantic.</span><br />
-            <span className="line-cognitive">Cognitive.</span><br />
-            <span style={{color:'var(--text)'}}>Intelligent.</span>
+            Track the <em>cognitive debt</em><br/>your AI agents leave behind.
           </h1>
           <p className="hero-sub">
-            Two tools. One discipline. <strong>git-semantic</strong> gives your AI agents precise, token-efficient code search.{' '}
-            <strong>git-cognitive</strong> tracks every AI-generated commit as measurable debt.
+            Every AI-generated commit is attributed and friction-scored —{' '}
+            <strong>stored directly in your git repo.</strong> Zero LLM. Zero network. All signals from git and tree-sitter AST analysis.
           </p>
-          <div className="hero-ctas">
-            <div className="cta-primary semantic">
-              <a className="cta-primary-label" href="git-semantic.html" style={{color:'inherit',textDecoration:'none'}}>⬡ git-semantic →</a>
-              <a className="cta-primary-gh" href="https://github.com/ccherrad/git-semantic" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'none'}}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-              </a>
+          <div className="hero-actions">
+            <button className="btn-primary" onClick={() => document.getElementById('install').scrollIntoView({behavior:'smooth'})}>
+              ↓ Install
+            </button>
+            <a className="btn-secondary" href="https://github.com/ccherrad/git-cognitive" target="_blank" rel="noopener">
+              GitHub ↗
+            </a>
+          </div>
+          <div className="hero-stats">
+            <div className="stat"><span className="stat-val">0</span><span className="stat-label">LLM calls</span></div>
+            <div className="stat"><span className="stat-val">3</span><span className="stat-label">friction signals</span></div>
+            <div className="stat"><span className="stat-val">git</span><span className="stat-label">+ SQLite storage</span></div>
+          </div>
+        </div>
+        <div className="hero-right">
+          <div className="terminal-wrap"><Terminal /></div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how" style={{background:'var(--bg2)'}}>
+        <div className="section-inner">
+          <div className="section-label">How it works</div>
+          <h2 className="section-h2">Audit once.<br/>Share with everyone.</h2>
+          <p className="section-sub">Four steps, triggered automatically on every commit.</p>
+          <div className="steps reveal">
+            <div className="step">
+              <div className="step-num">01 —</div>
+              <div className="step-icon">⊛</div>
+              <h3>Resolve the set</h3>
+              <p>Finds the minimal covering set — the last commit that touched each tracked file. Skips anything already indexed.</p>
+              <div className="step-cmd"><span className="prompt">$ </span>git-cognitive index</div>
             </div>
-            <div className="cta-primary cognitive">
-              <a className="cta-primary-label" href="git-cognitive.html" style={{color:'inherit',textDecoration:'none'}}>◎ git-cognitive →</a>
-              <a className="cta-primary-gh" href="https://github.com/ccherrad/git-cognitive" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'none'}}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-              </a>
+            <div className="step">
+              <div className="step-num">02 —</div>
+              <div className="step-icon">◈</div>
+              <h3>Attribute AI lines</h3>
+              <p>Matches Claude session tool calls against the diff. Checked in priority order, with explicit trailers winning.</p>
+              <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginTop:16, lineHeight:1.9}}>
+                <div style={{color:'var(--green)'}}>1. Agent-Attribution trailer</div>
+                <div>2. line-level matching</div>
+                <div>3. keyword scan</div>
+              </div>
+            </div>
+            <div className="step">
+              <div className="step-num">03 —</div>
+              <div className="step-icon">△</div>
+              <h3>Score friction</h3>
+              <p>Tree-sitter AST analysis weighs complexity, doc gap, and author churn into a 0.0–1.0 score, plus fatigue and large-diff modifiers.</p>
+              <div className="step-cmd"><span className="prompt">friction </span>0.74</div>
+            </div>
+            <div className="step">
+              <div className="step-num">04 —</div>
+              <div className="step-icon">⎇</div>
+              <h3>Write to git</h3>
+              <p>Results land in <code>.git/cognitive.db</code> and the <code>cognitive/v1</code> orphan branch. Push once — the whole team sees the debt.</p>
+              <div className="step-cmd"><span className="prompt">$ </span>git-cognitive push</div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="hero-tools-strip reveal">
-            <div className="hero-strip-col">
-              <div className="strip-label semantic">
-                <span className="strip-dot"></span>git-semantic
+      {/* FRICTION SIGNALS */}
+      <section>
+        <div className="section-inner">
+          <div className="section-label">Friction scoring</div>
+          <h2 className="section-h2">Three signals.<br/>One 0.0–1.0 score.</h2>
+          <p className="section-sub">A weighted sum of three AST-parsed signals, plus two modifiers for AI-attributed commits — not a guess.</p>
+          <div className="signals-grid reveal">
+            <div className="signal-card">
+              <div className="signal-icon">◈</div>
+              <h3>Complexity <span style={{color:'var(--muted)', fontFamily:'var(--mono)', fontSize:12}}>0.4</span></h3>
+              <p>Max cyclomatic complexity across changed files, parsed from the tree-sitter AST — decision points, not line count.</p>
+            </div>
+            <div className="signal-card">
+              <div className="signal-icon">◻</div>
+              <h3>Doc gap <span style={{color:'var(--muted)', fontFamily:'var(--mono)', fontSize:12}}>0.4</span></h3>
+              <p>Ratio of undocumented functions in changed files. Missing documentation on new code is a direct cognitive liability.</p>
+            </div>
+            <div className="signal-card">
+              <div className="signal-icon">⬡</div>
+              <h3>Author churn <span style={{color:'var(--muted)', fontFamily:'var(--mono)', fontSize:12}}>0.2</span></h3>
+              <p>Distinct committers on changed files in the last 90 days. High churn means less institutional knowledge.</p>
+            </div>
+          </div>
+          <div style={{fontFamily:'var(--mono)', fontSize:13, color:'var(--muted)', marginBottom:40, lineHeight:1.9}} className="reveal">
+            <span style={{color:'var(--amber)'}}>+0.15</span> if large diff (AI-attributed and &gt;100 lines)
+            &nbsp;·&nbsp; <span style={{color:'var(--amber)'}}>+0.20</span> if fatigue (AI-attributed commit after a 3h+ session)
+          </div>
+          <div style={{background:'var(--bg2)', border:'1px solid var(--border)', padding:'32px 40px', fontFamily:'var(--mono)', fontSize:13, lineHeight:2.2}} className="reveal">
+            <div style={{color:'var(--muted)', marginBottom:8}}>cognitive/v1 · a3/f8/c2/activity.json</div>
+            <div><span style={{color:'var(--muted)'}}>"cognitive_friction_score":</span> <span style={{color:'var(--amber)'}}>0.74</span><span style={{color:'var(--muted)'}}>,</span></div>
+            <div><span style={{color:'var(--muted)'}}>"ai_attributed":</span> <span style={{color:'var(--green)'}}>true</span><span style={{color:'var(--muted)'}}>,</span> <span style={{color:'var(--muted)'}}>"attribution_pct":</span> <span style={{color:'var(--text)'}}>82</span><span style={{color:'var(--muted)'}}>,</span></div>
+            <div><span style={{color:'var(--muted)'}}>"lines_changed":</span> <span style={{color:'var(--text)'}}>142</span><span style={{color:'var(--muted)'}}>,</span> <span style={{color:'var(--muted)'}}>"large_diff":</span> <span style={{color:'var(--amber)'}}>true</span><span style={{color:'var(--muted)'}}>,</span> <span style={{color:'var(--muted)'}}>"fatigue":</span> <span style={{color:'var(--amber)'}}>true</span><span style={{color:'var(--muted)'}}>,</span></div>
+            <div><span style={{color:'var(--muted)'}}>"zombie":</span> <span style={{color:'var(--red)'}}>true</span><span style={{color:'var(--muted)'}}>,</span> <span style={{color:'var(--muted)'}}>"hotspots":</span> <span style={{color:'var(--muted)'}}>[ {'{'} </span><span style={{color:'var(--green)'}}>"complexity"</span><span style={{color:'var(--muted)'}}>: 18,</span> <span style={{color:'var(--green)'}}>"doc_gap"</span><span style={{color:'var(--muted)'}}>: 0.60 {'}'} ]</span></div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI ATTRIBUTION */}
+      <section style={{background:'var(--bg2)'}}>
+        <div className="section-inner">
+          <div className="section-label">AI attribution</div>
+          <h2 className="section-h2">How much of this<br/>commit was AI?</h2>
+          <p className="section-sub">Three methods, checked in priority order. The first that resolves wins — explicit trailers always take precedence.</p>
+          <div className="classes-grid reveal">
+            {[
+              { cls:'bug-fix', label:'1 · trailer', title:'Agent-Attribution trailer', desc:'An Agent-Attribution: 75% trailer in the commit message gives an exact percentage. Add it for precise attribution without relying on line matching.' },
+              { cls:'feature', label:'2 · line match', title:'Line-level matching', desc:'Agent Write/Edit tool calls from the captured Claude session are matched against git diff lines, per file, to compute the attributed percentage.' },
+              { cls:'minor', label:'3 · keyword', title:'Keyword scan', desc:'Fallback scan for Co-Authored-By: Claude, copilot, cursor, or ai-generated markers in the commit message.' },
+            ].map(c => (
+              <div key={c.cls} className="class-card">
+                <div className={`class-badge ${c.cls}`}>{c.label}</div>
+                <h3>{c.title}</h3>
+                <p>{c.desc}</p>
               </div>
-              <div className="strip-cmd">
-                <span className="prompt">❯ </span>git-semantic grep "how incoming requests are validated"
+            ))}
+          </div>
+          <div style={{marginTop:32, padding:'20px 24px', border:'1px solid var(--border)', background:'var(--bg)', fontFamily:'var(--mono)', fontSize:13, lineHeight:1.9}} className="reveal">
+            <div style={{color:'var(--text)'}}>feat: add payment processing flow</div>
+            <div style={{color:'var(--muted)'}}>&nbsp;</div>
+            <div><span style={{color:'var(--green)'}}>Agent-Attribution:</span> <span style={{color:'var(--amber)'}}>80%</span></div>
+          </div>
+        </div>
+      </section>
+
+      {/* ZOMBIE COMMITS */}
+      <section>
+        <div className="section-inner">
+          <div className="section-label">Zombie detection</div>
+          <h2 className="section-h2">AI commits that went dark.</h2>
+          <p className="section-sub">A zombie is an AI-attributed commit where none of the changed files have been touched by a human commit in the last 30 days. Flagged during indexing, visible in <code style={{fontFamily:'var(--mono)', color:'var(--green)'}}>blame</code> as ☠.</p>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'24px', marginTop:0}} className="reveal">
+            <div className="mini-term">
+              <div className="mini-term-bar">
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--red)'}}></div>
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--amber)'}}></div>
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--green)'}}></div>
+                <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--muted)',marginLeft:8}}>blame</span>
               </div>
-              <div className="strip-output">
-                <div><span className="blue">src/middleware/auth.rs:14</span> → <span className="hi">validate_token()</span></div>
-                <div><span className="blue">src/routes/api.rs:88</span> → <span className="hi">RequestGuard impl</span></div>
-                <div style={{color:'var(--muted)', marginTop:4}}>47% fewer tokens · 32% fewer turns</div>
+              <div className="mini-term-body">
+                <div><span style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive blame src/auth.rs</span></div>
+                <div style={{color:'var(--muted)', marginTop:4}}>LINE  SHA       FRICTION  AI%</div>
+                <div style={{color:'var(--amber)'}}>&nbsp;&nbsp;88  a3f8c2d   ███░ 0.74  82%</div>
+                <div style={{color:'var(--red)'}}>&nbsp;&nbsp;91  b9e1a04   ████ 0.87  91% ☠</div>
               </div>
             </div>
-            <div className="hero-strip-col" style={{borderLeft:'1px solid var(--border)'}}>
-              <div className="strip-label cognitive">
-                <span className="strip-dot"></span>git-cognitive
+            <div className="mini-term">
+              <div className="mini-term-bar">
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--red)'}}></div>
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--amber)'}}></div>
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--green)'}}></div>
+                <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--muted)',marginLeft:8}}>show</span>
               </div>
-              <div className="strip-cmd">
-                <span className="prompt">❯ </span>git-cognitive debt
-              </div>
-              <div className="strip-output">
-                <div><span className="green">a3f8c2d</span> <span style={{color:'var(--red, oklch(0.65 0.20 25))'}}>risk</span> 0.87 · 82% AI · payment flow</div>
-                <div><span className="green">b9e1a04</span> <span style={{color:'oklch(0.78 0.18 72)'}}>tech_debt</span> 0.61 · 71% AI · auth rewrite</div>
-                <div style={{color:'var(--muted)', marginTop:4}}>2 unendorsed · 0 zombies</div>
+              <div className="mini-term-body">
+                <div><span style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive show b9e1a04</span></div>
+                <div style={{color:'var(--muted)', marginTop:4}}>friction: 0.87 · AI: 91%</div>
+                <div style={{color:'var(--red)'}}>zombie: yes · fatigue: yes</div>
+                <div style={{color:'var(--muted)'}}>hotspots: 1 file · complexity 22</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── TOOLS ── */}
-      <div className="tools">
-        {/* git-semantic */}
-        <div className="tool-card semantic">
-          <div className="tool-card-bg"></div>
-          <div className="tool-card-inner">
-            <div className="tool-badge semantic">⬡ git-semantic</div>
-            <h2 className="tool-title" style={{fontFamily:'var(--display)'}}>Semantic grep<br/>for your codebase.</h2>
-            <div className="tool-subtitle">cargo install gitsem · Rust · MIT / Apache-2.0</div>
-            <p className="tool-desc">
-              Parses every tracked file with tree-sitter, generates vector embeddings per chunk, and stores them on a dedicated <strong>orphan git branch</strong> — so the whole team shares embeddings without re-indexing. Exposes <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>map</code>, <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>get</code>, <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>grep</code>, and <code style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--blue)',background:'var(--blue-dim)',padding:'1px 5px'}}>health</code> as MCP tools.
-            </p>
-
-            <div className="mini-term reveal">
-              <div className="mini-term-bar">
-                <div className="mt-dot" style={{background:'oklch(0.65 0.20 25)'}}></div>
-                <div className="mt-dot" style={{background:'oklch(0.78 0.18 72)'}}></div>
-                <div className="mt-dot" style={{background:'var(--blue)'}}></div>
-                <span style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginLeft:8}}>~/project — zsh</span>
-              </div>
-              <div className="mini-term-body">
-                <div><span className="mt-prompt" style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic map "error propagation"</span></div>
-                <div style={{color:'var(--text)'}}>## src/embed — EmbedError, Provider</div>
-                <div style={{color:'var(--muted)'}}>&nbsp; entry points: src/main.rs, src/embed.rs</div>
-                <div style={{color:'var(--blue)'}}>&nbsp; src/embed.rs:42-89</div>
-                <div style={{marginTop:8}}><span className="mt-prompt" style={{color:'var(--blue)'}}>❯ </span><span style={{color:'var(--text)'}}>git-semantic get src/embed.rs --mode outline</span></div>
-                <div style={{color:'var(--muted)', fontSize:11}}>L42-89 EmbedError · ~96% token reduction</div>
-              </div>
-            </div>
-
-            <div className="tool-stats reveal">
-              <div>
-                <div className="tool-stat-val" style={{color:'var(--blue)'}}><Counter to={32} suffix="%" /></div>
-                <div className="tool-stat-label">fewer tokens</div>
-              </div>
-              <div>
-                <div className="tool-stat-val" style={{color:'var(--blue)'}}><Counter to={96} suffix="%" /></div>
-                <div className="tool-stat-label">outline reduction</div>
-              </div>
-              <div>
-                <div className="tool-stat-val" style={{color:'var(--blue)'}}>MCP</div>
-                <div className="tool-stat-label">native protocol</div>
-              </div>
-            </div>
-
-            <div>
-              <a className="tool-cta semantic" href="git-semantic.html">
-                Explore git-semantic →
-              </a>
-              <a className="tool-cta-ghost" href="https://github.com/ccherrad/git-semantic" target="_blank" rel="noopener">
-                GitHub ↗
-              </a>
-            </div>
-          </div>
+      {/* WORKFLOW */}
+      <section id="workflow" style={{background:'var(--bg2)'}}>
+        <div className="section-inner">
+          <div className="section-label">Agent workflow</div>
+          <h2 className="section-h2">Commit. Index. Review.</h2>
+          <p className="section-sub">Enable the post-commit hook once. Indexing and pushing become automatic from that point on.</p>
+          <table className="workflow-table reveal">
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Command</th>
+                <th>When</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span className="wf-step commit">Commit</span></td>
+                <td><span className="wf-cmd">git commit</span></td>
+                <td><span className="wf-when">Post-commit hook fires automatically</span></td>
+                <td><span className="wf-badge auto">Auto</span></td>
+              </tr>
+              <tr>
+                <td><span className="wf-step score">Index</span></td>
+                <td><span className="wf-cmd">git-cognitive index</span></td>
+                <td><span className="wf-when">Triggered by hook — or run manually</span></td>
+                <td><span className="wf-badge auto">Auto</span></td>
+              </tr>
+              <tr>
+                <td><span className="wf-step endorse">Review</span></td>
+                <td><span className="wf-cmd">git-cognitive blame {"<"}file{">"}</span></td>
+                <td><span className="wf-when">Inspect per-line friction, AI%, zombies in the TUI</span></td>
+                <td><span className="wf-badge manual">Manual</span></td>
+              </tr>
+              <tr>
+                <td><span className="wf-step endorse">Drill in</span></td>
+                <td><span className="wf-cmd">git-cognitive show {"<"}hash{">"}</span></td>
+                <td><span className="wf-when">Full audit — friction, hotspots, fatigue, session</span></td>
+                <td><span className="wf-badge manual">Manual</span></td>
+              </tr>
+              <tr>
+                <td><span className="wf-step watch">Share</span></td>
+                <td><span className="wf-cmd">git-cognitive push</span></td>
+                <td><span className="wf-when">Auto on commit via hook — or push manually</span></td>
+                <td><span className="wf-badge auto">Auto</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </section>
 
-        {/* git-cognitive */}
-        <div className="tool-card cognitive">
-          <div className="tool-card-bg"></div>
-          <div className="tool-card-inner">
-            <div className="tool-badge cognitive">◎ git-cognitive</div>
-            <h2 className="tool-title" style={{fontFamily:'var(--display)'}}>Cognitive debt<br/>made visible.</h2>
-            <div className="tool-subtitle">cargo install git-cognitive · Rust · MIT / Apache-2.0</div>
-            <p className="tool-desc">
-              Every AI-generated commit is attributed, friction-scored, and classified — stored directly in your <strong>git repo</strong> on an orphan branch. No LLM calls. No external services. Pure git signals and tree-sitter AST analysis.
-            </p>
-
-            <div className="mini-term reveal">
-              <div className="mini-term-bar">
-                <div className="mt-dot" style={{background:'oklch(0.65 0.20 25)'}}></div>
-                <div className="mt-dot" style={{background:'oklch(0.78 0.18 72)'}}></div>
-                <div className="mt-dot" style={{background:'var(--green)'}}></div>
-                <span style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)', marginLeft:8}}>~/project — zsh</span>
-              </div>
-              <div className="mini-term-body">
-                <div><span className="mt-prompt" style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive index --check-zombies</span></div>
-                <div style={{color:'oklch(0.65 0.20 25)'}}>⚠ 3 zombie commits detected</div>
-                <div style={{color:'var(--muted)'}}>a3f8c2d · 47 days · 82% AI · unendorsed</div>
-                <div style={{marginTop:8}}><span className="mt-prompt" style={{color:'var(--green)'}}>❯ </span><span style={{color:'var(--text)'}}>git-cognitive endorse</span></div>
-                <div style={{color:'var(--green)'}}>✓ a3f8c2d endorsed · pushed to cognitive/v1</div>
-              </div>
-            </div>
-
-            <div className="tool-stats reveal">
-              <div>
-                <div className="tool-stat-val" style={{color:'var(--green)'}}>0</div>
-                <div className="tool-stat-label">LLM calls</div>
-              </div>
-              <div>
-                <div className="tool-stat-val" style={{color:'var(--green)'}}>3</div>
-                <div className="tool-stat-label">friction signals</div>
-              </div>
-              <div>
-                <div className="tool-stat-val" style={{color:'var(--green)'}}>git</div>
-                <div className="tool-stat-label">only storage</div>
-              </div>
-            </div>
-
-            <div>
-              <a className="tool-cta cognitive" href="git-cognitive.html">
-                Explore git-cognitive →
-              </a>
-              <a className="tool-cta-ghost" href="https://github.com/ccherrad/git-cognitive" target="_blank" rel="noopener">
-                GitHub ↗
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── PRINCIPLES ── */}
-      <section className="principle">
-        <div className="principle-inner">
-          <div className="section-label">Shared architecture</div>
-          <h2 className="reveal">
-            Built on the same<br />three principles.
-          </h2>
-          <div className="principle-grid reveal">
+      {/* FEATURES */}
+      <section>
+        <div className="section-inner">
+          <div className="section-label">Features</div>
+          <h2 className="section-h2">Everything the team needs.<br/>Nothing it doesn't.</h2>
+          <p className="section-sub">Built from scratch for AI-assisted development — not adapted from a code review plugin.</p>
+          <div className="features-grid reveal">
             {[
-              {
-                icon: '⎇',
-                title: 'Git is the store',
-                body: <>Both tools write to dedicated orphan branches (<code>semantic/v1</code>, <code>cognitive/v1</code>). No external databases, no cloud sync, no SaaS dependency. Your repo is the source of truth.</>,
-              },
-              {
-                icon: '◈',
-                title: 'Tree-sitter for precision',
-                body: 'Both tools parse code at the AST level — not with heuristics or regex. Chunk boundaries, complexity deltas, and doc gaps are computed from real syntax trees.',
-              },
-              {
-                icon: '⊛',
-                title: 'MCP native',
-                body: <>git-semantic exposes its tools over the MCP protocol — register once in Claude Code, Cursor, or Windsurf and agents call <code>map</code>, <code>get</code>, <code>grep</code>, and <code>health</code> directly.</>,
-              },
-            ].map(p => (
-              <div key={p.title} className="principle-item">
-                <div className="principle-item-icon">{p.icon}</div>
-                <h3>{p.title}</h3>
-                <p>{p.body}</p>
+              { icon:'⊛', title:'Zero LLM calls', body:'All attribution and scoring is computed from git metadata, commit trailers, and AST analysis. No API key, no network, no cost per commit.' },
+              { icon:'◈', title:'AST-aware friction scoring', body:<>Tree-sitter computes max complexity, doc gap, and author churn into a weighted 0.0–1.0 score — plus large-diff and fatigue modifiers.</> },
+              { icon:'⎇', title:'Debt stored in git', body:<>Results live in <code>.git/cognitive.db</code> and the <code>cognitive/v1</code> orphan branch. Push once — the whole team sees the same view.</> },
+              { icon:'△', title:'Zombie detection', body:'Surfaces AI commits where no human has touched the changed files in 30 days. Prevents neglected technical debt from compounding silently.' },
+              { icon:'⬡', title:'Blame TUI overlay', body:<><code>git-cognitive blame</code> overlays friction, AI%, and the zombie flag on a per-line git blame. Drill into any commit with Enter.</> },
+              { icon:'◉', title:'Attribution priority order', body:'Checked in sequence: Agent-Attribution trailer → line-level matching → keyword scan. Explicit trailers always win.' },
+              { icon:'✦', title:'Post-commit hook', body:<><code>git-cognitive enable claude</code> installs a post-commit hook that indexes and pushes automatically on every commit. Idempotent.</> },
+              { icon:'⊛', title:'Merge-aware sync', body:<><code>sync</code> and <code>index --auto-sync</code> capture three-way, squash, and rebase merges. Sessions are preserved across every merge strategy.</> },
+              { icon:'◉', title:'MCP server', body:<><code>git-cognitive mcp</code> exposes show and blame as MCP tools over JSON-RPC stdio. Register once in Claude Code, Cursor, or Windsurf — agents query cognitive data directly.</> },
+            ].map(f => (
+              <div key={f.title} className="feature-card">
+                <div className="feature-icon">{f.icon}</div>
+                <h3>{f.title}</h3>
+                <p>{f.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── DIAGRAM ── */}
-      <section className="diagram">
-        <div className="diagram-inner">
-          <div className="section-label">How they work together</div>
-          <h2 className="reveal">
-            Search intelligently.<br/>Audit honestly.
-          </h2>
-          <div className="diagram-flow reveal">
-            <div className="flow-node shared">
-              <div className="flow-node-label">Input</div>
-              <h4>Your git repo</h4>
-              <p>Tracked files, commit history, Claude Code sessions. Everything starts here.</p>
+      {/* DIFFERENTIATORS */}
+      <section style={{background:'var(--bg2)'}}>
+        <div className="section-inner">
+          <div className="section-label">vs. alternatives</div>
+          <h2 className="section-h2">Built for AI-generated code,<br/>not retrofitted.</h2>
+          <p className="section-sub">Most code quality tools measure complexity. git-cognitive measures AI attribution and the cognitive debt it creates.</p>
+          <table className="diff-table reveal">
+            <thead>
+              <tr>
+                <th style={{width:'48%'}} className="us">git-cognitive</th>
+                <th style={{width:'48%'}} className="them">Other tools</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['AI attribution per commit', 'No AI-specific attribution'],
+                ['Friction score from AST signals', 'Line count or cyclomatic complexity only'],
+                ['Debt stored in git — shareable', 'Per-user dashboards, not in repo'],
+                ['Zero LLM calls', 'LLM-based review tools cost per call'],
+                ['Zombie commit detection', 'No temporal AI-debt tracking'],
+                ['Per-line blame overlay (TUI)', 'Aggregate dashboards only'],
+                ['Sessions preserved across all merges', 'No captured agent context'],
+                ['Post-commit hook — fully automatic', 'Manual review workflows'],
+              ].map(([us, them], i) => (
+                <tr key={i}>
+                  <td className="us"><span className="diff-check">✓ </span>{us}</td>
+                  <td className="them"><span className="diff-cross">— </span>{them}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* COMMANDS */}
+      <section id="commands" style={{background:'var(--bg2)', borderTop:'1px solid var(--border)'}}>
+        <div className="section-inner">
+          <div className="section-label">Commands</div>
+          <h2 className="section-h2">Every command you need.</h2>
+          <p className="section-sub">A focused, precise surface. Nothing extraneous.</p>
+          <CommandsExplorer />
+        </div>
+      </section>
+
+      {/* INSTALL */}
+      <section id="install">
+        <div className="section-inner">
+          <div className="section-label">Install</div>
+          <h2 className="section-h2">One command.</h2>
+          <p className="section-sub">Published on crates.io. Requires Rust 1.70+, Git 2.0+.</p>
+          <div className="install-block reveal">
+            <span><span className="prompt">$</span><span className="cmd"> cargo install git-cognitive</span></span>
+            <CopyBtn text="cargo install git-cognitive" />
+          </div>
+          <p style={{fontFamily:'var(--mono)', fontSize:12, color:'var(--muted)', marginBottom:24}}>or from source:</p>
+          <div className="install-block reveal" style={{fontSize:13, lineHeight:2, flexDirection:'column', alignItems:'flex-start', gap:4}}>
+            <div><span className="prompt">$</span><span className="cmd"> git clone https://github.com/ccherrad/git-cognitive</span></div>
+            <div><span className="prompt">$</span><span className="cmd"> cd git-cognitive &amp;&amp; cargo install --path .</span></div>
+            <CopyBtn text={"git clone https://github.com/ccherrad/git-cognitive\ncd git-cognitive && cargo install --path ."} />
+          </div>
+
+          <div className="install-grid">
+            <div>
+              <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Quickstart</h3>
+              {[
+                { n:'1.', cmd:'git-cognitive enable claude', desc:'Install post-commit hook' },
+                { n:'2.', cmd:'git-cognitive index', desc:'Index the current repo state' },
+                { n:'3.', cmd:'git commit -m "feat: ..."', desc:'Work normally — index fires automatically' },
+                { n:'4.', cmd:'git-cognitive blame src/main.rs', desc:'Inspect with cognitive overlay' },
+                { n:'5.', cmd:'git-cognitive push', desc:'Share debt view with team' },
+              ].map(s => (
+                <div key={s.n} className="qs-step">
+                  <span className="qs-num">{s.n}</span>
+                  <div>
+                    <div className="qs-cmd">{s.cmd}</div>
+                    <div className="qs-desc">{s.desc}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flow-arrow">→</div>
-            <div style={{display:'flex', flexDirection:'column', gap:1, background:'var(--border)'}}>
-              <div className="flow-node semantic" style={{flex:1}}>
-                <div className="flow-node-label">⬡ git-semantic</div>
-                <h4>Index + Search</h4>
-                <p>tree-sitter chunks → embeddings → <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--blue)'}}>semantic/v1</code> branch. Agents orient and retrieve via MCP.</p>
+            <div>
+              <h3 style={{fontFamily:'var(--display)', fontSize:18, fontWeight:700, marginBottom:24, letterSpacing:'-0.02em'}}>Teammate setup</h3>
+              {[
+                { n:'1.', cmd:'git-cognitive pull', desc:'Pull the shared debt branch' },
+                { n:'2.', cmd:'git-cognitive blame <file>', desc:'View team-wide cognitive debt' },
+                { n:'3.', cmd:'git-cognitive enable claude', desc:'Start indexing your own commits' },
+              ].map(s => (
+                <div key={s.n} className="qs-step">
+                  <span className="qs-num" style={{color:'var(--amber)'}}>{s.n}</span>
+                  <div>
+                    <div className="qs-cmd">{s.cmd}</div>
+                    <div className="qs-desc">{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+              <div style={{marginTop:20, padding:'20px', border:'1px solid var(--border)', background:'var(--bg)', fontFamily:'var(--mono)', fontSize:12, lineHeight:1.9}}>
+                <div style={{color:'var(--muted)', marginBottom:8}}>orphan branch</div>
+                <div><span style={{color:'var(--green)'}}>cognitive/v1</span> <span style={{color:'var(--muted)'}}>— no shared history with main</span></div>
+                <div style={{marginTop:8, color:'var(--muted)'}}>ab/cd/ef/activity.json — friction, AI%, hotspots, zombie</div>
+                <div style={{color:'var(--muted)'}}>ab/cd/ef/session.jsonl — captured Claude session</div>
               </div>
-              <div className="flow-node cognitive" style={{flex:1}}>
-                <div className="flow-node-label">◎ git-cognitive</div>
-                <h4>Audit + Score</h4>
-                <p>post-commit hook → AI attribution + friction score → <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--green)'}}>cognitive/v1</code>.</p>
-              </div>
-            </div>
-            <div className="flow-arrow">→</div>
-            <div className="flow-node shared">
-              <div className="flow-node-label">Output</div>
-              <h4>Intelligence in git</h4>
-              <p>Shared with the whole team via <code style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--violet)'}}>git push</code>. No extra infrastructure required.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── STATS ── */}
-      <div className="stats-bar">
-        {[
-          { val: 32, suffix: '%', label: 'fewer tokens with semantic search', cls: 'blue' },
-          { val: 24, suffix: '%', label: 'fewer agent turns', cls: 'blue' },
-          { val: 0, suffix: '', label: 'LLM calls for cognitive audit', cls: 'green', static: '0' },
-          { val: 2, suffix: '', label: 'tools. one discipline.', cls: 'violet', static: '2' },
-        ].map(s => (
-          <div key={s.label} className="stat-cell">
-            <div className={`stat-cell-val ${s.cls}`}>
-              {s.static !== undefined ? s.static : <Counter to={s.val} suffix={s.suffix} />}
-            </div>
-            <div className="stat-cell-label">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── FOOTER ── */}
+      {/* FOOTER */}
       <footer>
-        <div className="footer-logo">
-          <div className="footer-logo-mark"></div>
-          GIT-ISM
+        <div style={{display:'flex', flexDirection:'column', gap:6}}>
+          <div style={{fontFamily:'var(--mono)', fontSize:14, color:'var(--green)'}}>◎ git-cognitive</div>
+          <div style={{fontFamily:'var(--mono)', fontSize:10, color:'var(--muted)', letterSpacing:'0.06em'}}>
+            Cognitive debt detection for Git
+          </div>
         </div>
         <div className="footer-links">
-          <a href="git-semantic.html">git-semantic →</a>
-          <a href="git-cognitive.html">git-cognitive →</a>
-          <a href="https://github.com/ccherrad" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/ccherrad/git-cognitive" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="https://crates.io/crates/git-cognitive" target="_blank" rel="noopener">crates.io ↗</a>
         </div>
-        <div className="footer-copy">MIT OR Apache-2.0</div>
+        <div style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--muted)'}}>MIT OR Apache-2.0</div>
       </footer>
     </>
   );
@@ -811,14 +966,5 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
-
-<template id="__bundler_thumbnail">
-  <svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg">
-    <rect width="80" height="56" fill="#0c0d14"/>
-    <rect x="28" y="18" width="24" height="20" fill="none" stroke="#7c3aed" stroke-width="1"/>
-    <circle cx="40" cy="28" r="4" fill="#7c3aed" opacity="0.7"/>
-    <text x="40" y="50" font-family="monospace" font-size="5" fill="#7c3aed" text-anchor="middle" letter-spacing="1">GIT-ISM</text>
-  </svg>
-</template>
 </body>
 </html>
